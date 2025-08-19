@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Miners Count</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .miners-display {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+        }
+        .miners-count {
+            font-size: 3em;
+            font-weight: bold;
+            color: #f7931a;
+            margin-bottom: 10px;
+        }
+        .miners-label {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .last-updated {
+            font-size: 0.9em;
+            color: #999;
+            margin-top: 20px;
+        }
+        .loading {
+            color: #3498db;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="miners-display">
+        <div class="miners-count" id="minersCount">Loading...</div>
+        <div class="miners-label">Estimated Active Bitcoin Miners</div>
+        <div class="last-updated" id="lastUpdated">Loading...</div>
+    </div>
+
+    <script>
+        function formatNumber(num) {
+            if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(0) + 'K';
+            return num.toLocaleString();
+        }
+
+        function estimateMiners(hashrate) {
+            // Assuming average modern ASIC miner does ~100 TH/s
+            const avgMinerHashrate = 100e12; // 100 TH/s in H/s
+            return Math.round(hashrate / avgMinerHashrate);
+        }
+
+        async function fetchMinersCount() {
+            try {
+                // Fetch difficulty to calculate hash rate
+                const difficultyResponse = await fetch('https://blockchain.info/q/getdifficulty');
+                const difficulty = await difficultyResponse.text();
+                
+                // Calculate hash rate from difficulty
+                const hashrate = parseFloat(difficulty) * Math.pow(2, 32) / 600;
+                
+                // Estimate number of miners
+                const estimatedMiners = estimateMiners(hashrate);
+                
+                document.getElementById('minersCount').textContent = formatNumber(estimatedMiners) + '+';
+                document.getElementById('lastUpdated').textContent = 'Updated: ' + new Date().toLocaleString();
+                
+            } catch (error) {
+                console.error('Error fetching miners count:', error);
+                document.getElementById('minersCount').textContent = '500K+';
+                document.getElementById('lastUpdated').textContent = 'Error loading data';
+            }
+        }
+
+        // Initial load
+        fetchMinersCount();
+        
+        // Update every 5 minutes
+        setInterval(fetchMinersCount, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
