@@ -396,9 +396,24 @@
         
         // Open data source in new tab
         function openDataSource(source) {
+            console.log('Clicked on:', source); // Debug log
             if (dataSources[source]) {
+                console.log('Opening URL:', dataSources[source]); // Debug log
                 window.open(dataSources[source], '_blank');
+            } else {
+                console.error('Data source not found:', source);
             }
+        }
+
+        // Alternative: Add event listeners after DOM loads
+        function addClickHandlers() {
+            const cards = document.querySelectorAll('.stat-card');
+            cards.forEach((card, index) => {
+                const sources = ['coingecko', 'blockchain-difficulty', 'blockchain-difficulty', 'blockstream', 'blockchain-difficulty', 'coingecko'];
+                card.addEventListener('click', function() {
+                    openDataSource(sources[index]);
+                });
+            });
         }
 
         // Auto-refresh every 5 minutes (300,000 milliseconds)
@@ -436,6 +451,9 @@
 
         // Initial data load when page loads
         fetchData();
+        
+        // Add click handlers after DOM is loaded
+        addClickHandlers();
     </script>
 </body>
 </html>
