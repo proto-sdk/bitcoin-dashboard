@@ -49,6 +49,40 @@
             font-weight: 400;
         }
         
+        .update-notice {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .update-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .update-text {
+            color: #b0b3b8;
+            font-size: 0.9em;
+            margin: 0;
+            line-height: 1.4;
+        }
+        
+        #dashboard-version {
+            color: #10b981;
+            font-weight: 600;
+        }
+        
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -202,6 +236,10 @@
         <div class="header">
             <h1>⚡ Bitcoin Network Statistics</h1>
             <p class="subtitle">Real-time Bitcoin blockchain metrics and mining data</p>
+            <div class="update-notice">
+                <div class="update-badge">🆕 UPDATED</div>
+                <p class="update-text">Dashboard enhanced with improved data accuracy and real-time mining statistics. Last updated: <span id="dashboard-version">January 2025</span></p>
+            </div>
         </div>
         
         <div class="stats-grid">
