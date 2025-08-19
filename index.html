@@ -408,11 +408,23 @@
         // Alternative: Add event listeners after DOM loads
         function addClickHandlers() {
             const cards = document.querySelectorAll('.stat-card');
+            console.log('Found', cards.length, 'cards'); // Debug log
+            
             cards.forEach((card, index) => {
                 const sources = ['coingecko', 'blockchain-difficulty', 'blockchain-difficulty', 'blockstream', 'blockchain-difficulty', 'coingecko'];
-                card.addEventListener('click', function() {
+                console.log(`Card ${index + 1}: Adding click handler for ${sources[index]}`); // Debug log
+                
+                card.addEventListener('click', function(event) {
+                    console.log(`Card ${index + 1} clicked via addEventListener`); // Debug log
+                    event.preventDefault();
                     openDataSource(sources[index]);
                 });
+                
+                // Add extra debugging for bottom 3 cards (indices 3, 4, 5)
+                if (index >= 3) {
+                    console.log(`Bottom card ${index + 1} setup complete`);
+                    card.style.border = '2px solid rgba(247, 147, 26, 0.2)'; // Visual indicator
+                }
             });
         }
 
