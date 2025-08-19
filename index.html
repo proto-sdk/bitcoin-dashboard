@@ -105,6 +105,20 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border-color: rgba(247, 147, 26, 0.3);
+        }
+        
+        .stat-card:hover .stat-label::after {
+            content: " 🔗";
+            opacity: 0.7;
         }
         
         .stat-card::before {
@@ -116,12 +130,6 @@
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
             transition: left 0.5s;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-            border-color: rgba(247, 147, 26, 0.3);
         }
         
         .stat-card:hover::before {
@@ -248,42 +256,42 @@
         </div>
         
         <div class="stats-grid">
-            <div class="stat-card">
+            <div class="stat-card" onclick="openDataSource('coingecko')">
                 <div class="status-indicator"></div>
                 <div class="stat-icon bitcoin-orange">₿</div>
                 <div class="stat-value" id="price">Loading...</div>
                 <div class="stat-label">Bitcoin Price (USD)</div>
             </div>
             
-            <div class="stat-card">
+            <div class="stat-card" onclick="openDataSource('blockchain-difficulty')">
                 <div class="status-indicator"></div>
                 <div class="stat-icon hash-blue">⚡</div>
                 <div class="stat-value" id="hashrate">Loading...</div>
                 <div class="stat-label">Network Hash Rate</div>
             </div>
             
-            <div class="stat-card">
+            <div class="stat-card" onclick="openDataSource('blockchain-difficulty')">
                 <div class="status-indicator"></div>
                 <div class="stat-icon difficulty-purple">🎯</div>
                 <div class="stat-value" id="difficulty">Loading...</div>
                 <div class="stat-label">Mining Difficulty</div>
             </div>
             
-            <div class="stat-card">
+            <div class="stat-card" onclick="openDataSource('blockstream')">
                 <div class="status-indicator"></div>
                 <div class="stat-icon blocks-red">🧱</div>
                 <div class="stat-value" id="blockHeight">Loading...</div>
                 <div class="stat-label">Current Block Height</div>
             </div>
             
-            <div class="stat-card">
+            <div class="stat-card" onclick="openDataSource('blockchain-difficulty')">
                 <div class="status-indicator"></div>
                 <div class="stat-icon miners-teal">⛏️</div>
                 <div class="stat-value" id="estimatedMiners">Loading...</div>
                 <div class="stat-label">Estimated Active Miners</div>
             </div>
             
-            <div class="stat-card">
+            <div class="stat-card" onclick="openDataSource('coingecko')">
                 <div class="status-indicator"></div>
                 <div class="stat-icon price-green">💰</div>
                 <div class="stat-value" id="marketCap">Loading...</div>
@@ -376,6 +384,20 @@
                 });
                 
                 document.getElementById('lastUpdated').textContent = 'Error loading data. Please try refreshing.';
+            }
+        }
+
+        // Data source URLs mapping
+        const dataSources = {
+            'coingecko': 'https://www.coingecko.com/en/coins/bitcoin',
+            'blockchain-difficulty': 'https://blockchain.info/charts/difficulty',
+            'blockstream': 'https://blockstream.info/'
+        };
+        
+        // Open data source in new tab
+        function openDataSource(source) {
+            if (dataSources[source]) {
+                window.open(dataSources[source], '_blank');
             }
         }
 
