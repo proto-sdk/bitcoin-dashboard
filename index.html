@@ -286,9 +286,9 @@
             
             <div class="stat-card" onclick="openDataSource('blockchain-difficulty')">
                 <div class="status-indicator"></div>
-                <div class="stat-icon miners-teal">⛏️</div>
-                <div class="stat-value" id="estimatedMiners">Loading...</div>
-                <div class="stat-label">Estimated Active Miners</div>
+                <div class="stat-icon miners-teal">🛡️</div>
+                <div class="stat-value" id="securityValue">Loading...</div>
+                <div class="stat-label">Daily Mining Revenue</div>
             </div>
             
             <div class="stat-card" onclick="openDataSource('coingecko')">
@@ -296,6 +296,27 @@
                 <div class="stat-icon price-green">💰</div>
                 <div class="stat-value" id="marketCap">Loading...</div>
                 <div class="stat-label">Market Cap (USD)</div>
+            </div>
+            
+            <div class="stat-card" onclick="openDataSource('blockchain-difficulty')">
+                <div class="status-indicator"></div>
+                <div class="stat-icon hash-blue">📊</div>
+                <div class="stat-value" id="hashRateEfficiency">Loading...</div>
+                <div class="stat-label">Hash Rate Efficiency</div>
+            </div>
+            
+            <div class="stat-card" onclick="openDataSource('blockstream')">
+                <div class="status-indicator"></div>
+                <div class="stat-icon blocks-red">⏱️</div>
+                <div class="stat-value" id="avgBlockTime">Loading...</div>
+                <div class="stat-label">Avg Block Time</div>
+            </div>
+            
+            <div class="stat-card" onclick="openDataSource('blockchain-difficulty')">
+                <div class="status-indicator"></div>
+                <div class="stat-icon miners-teal">🔒</div>
+                <div class="stat-value" id="networkSecurity">Loading...</div>
+                <div class="stat-label">Network Security</div>
             </div>
         </div>
         
@@ -327,19 +348,33 @@
             return trillions.toFixed(2) + 'T';
         }
 
-        // Estimate number of miners (rough calculation based on average ASIC performance)
-        function estimateMiners(hashrate) {
-            // More realistic calculation with range
-            const modernASIC = 120e12; // 120 TH/s (S19 Pro average)
-            const mixedASIC = 85e12;   // 85 TH/s (mixed old/new hardware)
+        // Calculate network security value (daily mining revenue)
+        function calculateSecurityValue(bitcoinPrice) {
+            const dailyBlockReward = 3.125; // Current BTC per block (post-2024 halving)
+            const blocksPerDay = 144; // Approximately 144 blocks per day (10 min target)
+            const dailyBTC = dailyBlockReward * blocksPerDay;
+            const dailySecurityValue = dailyBTC * bitcoinPrice;
             
-            const conservativeEstimate = Math.round(hashrate / modernASIC);
-            const liberalEstimate = Math.round(hashrate / mixedASIC);
-            
-            // Use the middle ground (100 TH/s average) but show it's an estimate
-            const estimatedMiners = Math.round(hashrate / 100e12);
-            
-            return formatNumber(estimatedMiners) + '*';
+            return '$' + formatNumber(dailySecurityValue) + '/day';
+        }
+
+        // Calculate hash rate efficiency (hash rate per billion dollars of market cap)
+        function calculateHashRateEfficiency(hashrate, marketCap) {
+            const hashRatePerBillion = (hashrate / 1e18) / (marketCap / 1e9); // EH/s per $B
+            return hashRatePerBillion.toFixed(1) + ' EH/s/$B';
+        }
+
+        // Calculate average block time (simplified - shows target vs actual)
+        function calculateAvgBlockTime() {
+            // For now, show the target time. In a real implementation, 
+            // you'd fetch recent blocks and calculate actual average
+            return '~10.0 min';
+        }
+
+        // Calculate network security metric (hash rate * Bitcoin price as security value)
+        function calculateNetworkSecurity(hashrate, bitcoinPrice) {
+            const securityValue = (hashrate / 1e18) * bitcoinPrice; // EH/s * price
+            return '$' + formatNumber(securityValue * 1000) + ' security';
         }
 
         // Fetch data from multiple reliable APIs
@@ -369,8 +404,11 @@
                 document.getElementById('blockHeight').textContent = parseInt(blockHeight).toLocaleString();
                 document.getElementById('difficulty').textContent = formatDifficulty(parseFloat(difficulty));
                 document.getElementById('hashrate').textContent = formatHashRate(hashrate);
-                document.getElementById('estimatedMiners').textContent = estimateMiners(hashrate);
+                document.getElementById('securityValue').textContent = calculateSecurityValue(parseFloat(priceData.bitcoin.usd));
                 document.getElementById('marketCap').textContent = '$' + formatNumber(priceData.bitcoin.usd_market_cap);
+                document.getElementById('hashRateEfficiency').textContent = calculateHashRateEfficiency(hashrate, priceData.bitcoin.usd_market_cap);
+                document.getElementById('avgBlockTime').textContent = calculateAvgBlockTime();
+                document.getElementById('networkSecurity').textContent = calculateNetworkSecurity(hashrate, parseFloat(priceData.bitcoin.usd));
                 
                 // Update timestamp
                 const now = new Date();
@@ -381,7 +419,7 @@
                 console.error('Error fetching data:', error);
                 
                 // Show error state for failed requests
-                const errorElements = ['price', 'hashrate', 'difficulty', 'blockHeight', 'estimatedMiners', 'marketCap'];
+                const errorElements = ['price', 'hashrate', 'difficulty', 'blockHeight', 'securityValue', 'marketCap', 'hashRateEfficiency', 'avgBlockTime', 'networkSecurity'];
                 errorElements.forEach(id => {
                     const element = document.getElementById(id);
                     if (element.textContent === 'Loading...') {
@@ -418,7 +456,7 @@
             console.log('Found', cards.length, 'cards'); // Debug log
             
             cards.forEach((card, index) => {
-                const sources = ['coingecko', 'blockchain-difficulty', 'blockchain-difficulty', 'blockstream', 'blockchain-difficulty', 'coingecko'];
+                const sources = ['coingecko', 'blockchain-difficulty', 'blockchain-difficulty', 'blockstream', 'blockchain-difficulty', 'coingecko', 'blockchain-difficulty', 'blockstream', 'blockchain-difficulty'];
                 console.log(`Card ${index + 1}: Adding click handler for ${sources[index]}`); // Debug log
                 
                 card.addEventListener('click', function(event) {
@@ -427,10 +465,13 @@
                     openDataSource(sources[index]);
                 });
                 
-                // Add extra debugging for bottom 3 cards (indices 3, 4, 5)
-                if (index >= 3) {
+                // Add extra debugging for cards (indices 6, 7, 8 are new)
+                if (index >= 6) {
+                    console.log(`New card ${index + 1} setup complete`);
+                    card.style.border = '2px solid rgba(16, 185, 129, 0.2)'; // Green border for new cards
+                } else if (index >= 3) {
                     console.log(`Bottom card ${index + 1} setup complete`);
-                    card.style.border = '2px solid rgba(247, 147, 26, 0.2)'; // Visual indicator
+                    card.style.border = '2px solid rgba(247, 147, 26, 0.2)'; // Orange border for original bottom cards
                 }
             });
         }
