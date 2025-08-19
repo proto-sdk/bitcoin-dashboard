@@ -316,7 +316,7 @@
                 <div class="status-indicator"></div>
                 <div class="stat-icon miners-teal">🔒</div>
                 <div class="stat-value" id="networkSecurity">Loading...</div>
-                <div class="stat-label">Network Security</div>
+                <div class="stat-label">Annualized Miner Revenue</div>
             </div>
         </div>
         
@@ -371,10 +371,14 @@
             return '~10.0 min';
         }
 
-        // Calculate network security metric (hash rate * Bitcoin price as security value)
-        function calculateNetworkSecurity(hashrate, bitcoinPrice) {
-            const securityValue = (hashrate / 1e18) * bitcoinPrice; // EH/s * price
-            return '$' + formatNumber(securityValue * 1000) + ' security';
+        // Calculate network security metric (annualized miner revenue)
+        function calculateNetworkSecurity(bitcoinPrice) {
+            const dailyBlockReward = 3.125; // Current BTC per block (post-2024 halving)
+            const blocksPerDay = 144; // Approximately 144 blocks per day (10 min target)
+            const dailyRevenue = dailyBlockReward * blocksPerDay * bitcoinPrice;
+            const annualizedSecurity = dailyRevenue * 365; // Annualized miner revenue
+            
+            return '$' + formatNumber(annualizedSecurity) + ' annually';
         }
 
         // Fetch data from multiple reliable APIs
@@ -408,7 +412,7 @@
                 document.getElementById('marketCap').textContent = '$' + formatNumber(priceData.bitcoin.usd_market_cap);
                 document.getElementById('hashRateEfficiency').textContent = calculateHashRateEfficiency(hashrate, priceData.bitcoin.usd_market_cap);
                 document.getElementById('avgBlockTime').textContent = calculateAvgBlockTime();
-                document.getElementById('networkSecurity').textContent = calculateNetworkSecurity(hashrate, parseFloat(priceData.bitcoin.usd));
+                document.getElementById('networkSecurity').textContent = calculateNetworkSecurity(parseFloat(priceData.bitcoin.usd));
                 
                 // Update timestamp
                 const now = new Date();
