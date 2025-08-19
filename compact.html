@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Stats - Compact Widget</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+        }
+        .compact-widget {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+        .stat-label {
+            color: #b0b3b8;
+        }
+        .stat-value {
+            color: #f7931a;
+            font-weight: bold;
+        }
+        .header {
+            text-align: center;
+            color: #f7931a;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            font-size: 0.7em;
+            color: #888;
+            margin-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="compact-widget">
+        <div class="header">⚡ Bitcoin Network Stats</div>
+        
+        <div class="stats-row">
+            <span class="stat-label">Price:</span>
+            <span class="stat-value" id="price">Loading...</span>
+        </div>
+        
+        <div class="stats-row">
+            <span class="stat-label">Hash Rate:</span>
+            <span class="stat-value" id="hashrate">Loading...</span>
+        </div>
+        
+        <div class="stats-row">
+            <span class="stat-label">Est. Miners:</span>
+            <span class="stat-value" id="miners">Loading...</span>
+        </div>
+        
+        <div class="stats-row">
+            <span class="stat-label">Block Height:</span>
+            <span class="stat-value" id="blocks">Loading...</span>
+        </div>
+        
+        <div class="footer">
+            <span id="updated">Loading...</span>
+        </div>
+    </div>
+
+    <script>
+        function formatNumber(num) {
+            if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+            return num.toLocaleString();
+        }
+
+        function formatHashRate(hashrate) {
+            return (hashrate / 1e18).toFixed(2) + ' EH/s';
+        }
+
+        function estimateMiners(hashrate) {
+            return formatNumber(Math.round(hashrate / 100e12));
+        }
+
+        async function fetchData() {
+            try {
+                const [priceRes, blockRes, diffRes] = await Promise.all([
+                    fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'),
+                    fetch('https://blockstream.info/api/blocks/tip/height'),
+                    fetch('https://blockchain.info/q/getdifficulty')
+                ]);
+
+                const priceData = await priceRes.json();
+                const blockHeight = await blockRes.text();
+                const difficulty = await diffRes.text();
+                const hashrate = parseFloat(difficulty) * Math.pow(2, 32) / 600;
+
+                document.getElementById('price').textContent = '$' + parseFloat(priceData.bitcoin.usd).toLocaleString();
+                document.getElementById('hashrate').textContent = formatHashRate(hashrate);
+                document.getElementById('miners').textContent = estimateMiners(hashrate);
+                document.getElementById('blocks').textContent = parseInt(blockHeight).toLocaleString();
+                document.getElementById('updated').textContent = new Date().toLocaleString();
+
+            } catch (error) {
+                document.getElementById('updated').textContent = 'Error loading data';
+            }
+        }
+
+        fetchData();
+        setInterval(fetchData, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
