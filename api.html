@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Bitcoin Stats API</title>
+</head>
+<body>
+    <script>
+        // Simple API endpoint for Bitcoin stats
+        async function getBitcoinStats() {
+            try {
+                const [priceRes, blockRes, diffRes] = await Promise.all([
+                    fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true'),
+                    fetch('https://blockstream.info/api/blocks/tip/height'),
+                    fetch('https://blockchain.info/q/getdifficulty')
+                ]);
+
+                const priceData = await priceRes.json();
+                const blockHeight = await blockRes.text();
+                const difficulty = await diffRes.text();
+                const hashrate = parseFloat(difficulty) * Math.pow(2, 32) / 600;
+
+                const stats = {
+                    price: parseFloat(priceData.bitcoin.usd),
+                    marketCap: priceData.bitcoin.usd_market_cap,
+                    hashRate: (hashrate / 1e18).toFixed(2) + ' EH/s',
+                    difficulty: (parseFloat(difficulty) / 1e12).toFixed(2) + 'T',
+                    blockHeight: parseInt(blockHeight),
+                    estimatedMiners: Math.round(hashrate / 100e12).toLocaleString(),
+                    lastUpdated: new Date().toISOString()
+                };
+
+                document.body.innerHTML = `
+                    <h1>Bitcoin Network Statistics API</h1>
+                    <pre>${JSON.stringify(stats, null, 2)}</pre>
+                    <p><a href="https://proto-sdk.github.io/bitcoin-dashboard/">View Full Dashboard</a></p>
+                `;
+
+            } catch (error) {
+                document.body.innerHTML = `<h1>Error loading Bitcoin stats</h1><p>${error.message}</p>`;
+            }
+        }
+
+        getBitcoinStats();
+    </script>
+</body>
+</html>

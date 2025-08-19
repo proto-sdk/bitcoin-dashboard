@@ -15,7 +15,7 @@ A real-time Bitcoin network statistics dashboard displaying live blockchain metr
 
 ## 📈 Live Dashboard
 
-**View the live dashboard:** [https://proto-sdk.github.io/bitcoin-dashboard](https://proto-sdk.github.io/bitcoin-dashboard)
+**View the live dashboard:** [https://proto-btc-dashboard.github.io](https://proto-btc-dashboard.github.io)
 
 ## 📊 Current Network Statistics
 
@@ -38,7 +38,7 @@ To embed this dashboard in your markdown documents:
 ```markdown
 ## Bitcoin Network Statistics
 
-<iframe src="https://proto-sdk.github.io/bitcoin-dashboard" 
+<iframe src="https://proto-btc-dashboard.github.io" 
         width="100%" 
         height="600px" 
         frameborder="0"

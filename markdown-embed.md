@@ -13,19 +13,19 @@
 ### Real-Time Data Widget
 
 <div id="bitcoin-stats"></div>
-<script src="https://proto-sdk.github.io/bitcoin-dashboard/widget.js"></script>
+<script src="https://proto-btc-dashboard.github.io/widget.js"></script>
 
 ---
 
-### Alternative Display Methods
+### **Alternative Display Methods
 
 If the above widget doesn't work, you can also:
 
-1. **Direct Link:** [View Live Dashboard](https://proto-sdk.github.io/bitcoin-dashboard)
+1. **Direct Link:** [View Live Dashboard](https://proto-btc-dashboard.github.io)
 
 2. **Screenshot with Link:**
-   ![Bitcoin Dashboard](https://proto-sdk.github.io/bitcoin-dashboard/screenshot.png)
-   *[Click here for live data](https://proto-sdk.github.io/bitcoin-dashboard)*
+   ![Bitcoin Dashboard](https://proto-btc-dashboard.github.io/screenshot.png)
+   *[Click here for live data](https://proto-btc-dashboard.github.io)*
 
 3. **Static Data Table:**
 
@@ -45,7 +45,7 @@ If the above widget doesn't work, you can also:
 **For Markdown documents that support JavaScript:**
 ```markdown
 <div id="bitcoin-stats"></div>
-<script src="https://proto-sdk.github.io/bitcoin-dashboard/widget.js"></script>
+<script src="https://proto-btc-dashboard.github.io/widget.js"></script>
 ```
 
 **For static markdown:**
@@ -56,5 +56,5 @@ If the above widget doesn't work, you can also:
 - Current Price: $95,000+
 - Block Height: 870,000+
 
-[View Live Dashboard →](https://proto-sdk.github.io/bitcoin-dashboard)
+[View Live Dashboard →](https://proto-btc-dashboard.github.io)
 ```
