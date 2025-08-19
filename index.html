@@ -83,6 +83,11 @@
             font-weight: 600;
         }
         
+        #update-counter {
+            color: #10b981;
+            font-weight: 600;
+        }
+        
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -238,7 +243,7 @@
             <p class="subtitle">Real-time Bitcoin blockchain metrics and mining data</p>
             <div class="update-notice">
                 <div class="update-badge">🆕 UPDATED</div>
-                <p class="update-text">Dashboard enhanced with improved data accuracy and real-time mining statistics. Last updated: <span id="dashboard-version">January 2025</span></p>
+                <p class="update-text">Dashboard enhanced with improved data accuracy and real-time mining statistics. <span id="update-counter">Loading...</span></p>
             </div>
         </div>
         
@@ -376,6 +381,36 @@
 
         // Auto-refresh every 5 minutes (300,000 milliseconds)
         setInterval(fetchData, 5 * 60 * 1000);
+
+        // Update counter functionality
+        let startTime = Date.now();
+        
+        function updateCounter() {
+            const elapsed = Date.now() - startTime;
+            const seconds = Math.floor(elapsed / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            
+            let counterText = '';
+            if (days > 0) {
+                counterText = `Updated ${days} day${days > 1 ? 's' : ''} ago`;
+            } else if (hours > 0) {
+                counterText = `Updated ${hours} hour${hours > 1 ? 's' : ''} ago`;
+            } else if (minutes > 0) {
+                counterText = `Updated ${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+            } else {
+                counterText = `Updated ${seconds} second${seconds > 1 ? 's' : ''} ago`;
+            }
+            
+            document.getElementById('update-counter').textContent = counterText;
+        }
+        
+        // Update counter every second
+        setInterval(updateCounter, 1000);
+        
+        // Initial counter update
+        updateCounter();
 
         // Initial data load when page loads
         fetchData();
