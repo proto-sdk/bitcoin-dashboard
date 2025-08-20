@@ -583,8 +583,11 @@
                 document.getElementById('hashRateEfficiency').textContent = calculateHashRateEfficiency(hashrate, priceData.bitcoin.usd_market_cap);
 
                 // Fetch 1M average confirmation time
+                // Note: This API call is subject to CORS and may not work in browser-only deployments.
+                //       If it fails with a network or CORS error, deploy with a proxy or server fetch!
                 try {
                     const confTimeResp = await fetch('https://api.blockchain.info/charts/avg-confirmation-time?timespan=1months&format=json');
+                    if(!confTimeResp.ok) throw new Error('API unavailable');
                     const confTimeData = await confTimeResp.json();
                     if(confTimeData && confTimeData.values && confTimeData.values.length > 0) {
                         const lastConfMins = confTimeData.values[confTimeData.values.length-1].y;
@@ -593,7 +596,11 @@
                         document.getElementById('confirmationTime').textContent = 'N/A';
                     }
                 } catch (e) {
-                    document.getElementById('confirmationTime').textContent = 'Error';
+                    if (e instanceof TypeError && e.message.match(/network|cors|fetch/i)) {
+                        document.getElementById('confirmationTime').textContent = 'CORS Blocked';
+                    } else {
+                        document.getElementById('confirmationTime').textContent = 'Err';
+                    }
                 }
 
                 
