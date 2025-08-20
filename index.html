@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitcoin Network Statistics Dashboard</title>
+    <title>Bitcoin Network Statistics</title>
     <style>
         * {
             margin: 0;
@@ -12,175 +12,325 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #ffffff;
+            color: #000000;
+            line-height: 1.6;
             min-height: 100vh;
-            color: #ffffff;
         }
         
-        .dashboard {
+        /* Navigation */
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: #ffffff;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #000000;
+        }
+        
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: #FF6B35;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: #666666;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .nav-link:hover {
+            color: #000000;
+        }
+        
+        .nav-button {
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-button:hover {
+            background: #333333;
+            transform: translateY(-1px);
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 80px 40px 40px;
             max-width: 1200px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .header {
-            text-align: center;
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 400;
+            letter-spacing: -2px;
+            margin-bottom: 16px;
+            line-height: 1.1;
+        }
+        
+        .hero .subtitle {
+            font-size: 20px;
+            color: #666666;
+            font-weight: 400;
             margin-bottom: 40px;
         }
         
-        .header h1 {
-            color: #f7931a;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 700;
-            text-shadow: 0 0 20px rgba(247, 147, 26, 0.3);
-        }
-        
-        .header .subtitle {
-            color: #b0b3b8;
-            font-size: 1.1em;
-            font-weight: 400;
-        }
-        
-        .update-notice {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1));
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 12px;
-            padding: 15px;
-            margin-top: 20px;
-            text-align: center;
-        }
-        
+        /* Update Badge */
         .update-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #10b981, #06b6d4);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: 600;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f8f8;
+            padding: 8px 16px;
+            border-radius: 24px;
+            font-size: 13px;
+            color: #666666;
+            margin-bottom: 40px;
         }
         
-        .update-text {
-            color: #b0b3b8;
-            font-size: 0.9em;
-            margin: 0;
-            line-height: 1.4;
+        .update-badge .badge-icon {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
         }
         
-        .version-features {
-            display: inline-block;
-            color: #10b981;
-            font-weight: 500;
-            margin-top: 4px;
-            font-style: italic;
+        /* Main Content */
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px 80px;
         }
         
-        #dashboard-version {
-            color: #10b981;
-            font-weight: 600;
-        }
-        
-        #update-counter {
-            color: #10b981;
-            font-weight: 600;
-            display: inline-block;
-            margin-top: 4px;
-        }
-        
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
         }
         
         .stat-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #ffffff;
+            border: 1px solid #f0f0f0;
+            border-radius: 16px;
+            padding: 32px;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: visible; /* Allow tooltips to overflow */
             cursor: pointer;
             text-decoration: none;
             color: inherit;
-            aspect-ratio: 1 / 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            min-height: 300px;
-        }
-        
-        .stat-card > a {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            text-decoration: none;
-            color: inherit;
-            flex: 1;
-        }
-        
-        .stat-card > a .stat-value {
-            flex-grow: 0;
             display: block;
-            text-align: center;
-        }
-        
-        .stat-card > a .stat-label {
-            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
         }
         
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-            border-color: rgba(247, 147, 26, 0.3);
+            border-color: #FF6B35;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
         }
         
-        .stat-card:hover .stat-label::after {
-            content: " 🔗";
-            opacity: 0.7;
+        .stat-card > a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
         }
         
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 16px;
+            display: block;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            color: #000000;
+            line-height: 1.2;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666666;
+            font-weight: 500;
+        }
+        
+        /* Status Indicator */
+        .status-indicator {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        /* Colors */
+        .bitcoin-orange { color: #FF6B35; }
+        .hash-blue { color: #3b82f6; }
+        .difficulty-purple { color: #8b5cf6; }
+        .price-green { color: #10b981; }
+        .blocks-red { color: #ef4444; }
+        .miners-teal { color: #06b6d4; }
+        .energy-yellow { color: #f59e0b; }
+        
+        /* Loading and Error States */
+        .loading {
+            color: #999999;
+            font-style: italic;
+        }
+        
+        .error {
+            color: #ef4444;
+        }
+        
+        /* Footer */
+        .footer {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .last-updated {
+            font-size: 14px;
+            color: #666666;
+        }
+        
+        .refresh-btn {
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #e5e5e5;
+            padding: 10px 20px;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .refresh-btn:hover {
+            background: #f8f8f8;
+            border-color: #000000;
+        }
+        
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav {
+                padding: 16px 20px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .hero {
+                padding: 40px 20px;
+            }
+            
+            .hero h1 {
+                font-size: 36px;
+            }
+            
+            .hero .subtitle {
+                font-size: 18px;
+            }
+            
+            .dashboard {
+                padding: 0 20px 40px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .stat-card {
+                padding: 24px;
+            }
+            
+            .footer {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px;
+            }
+        }
+        
+        /* Tooltip */
         .tooltip {
             position: absolute;
-            bottom: calc(100% + 10px);
+            bottom: 100%;
             left: 50%;
-            transform: translateX(-50%) translateY(10px);
-            padding: 12px 16px;
-            background: rgba(0, 0, 0, 0.95);
-            color: white;
+            transform: translateX(-50%);
+            padding: 8px 12px;
+            background: #000000;
+            color: #ffffff;
             border-radius: 8px;
-            font-size: 0.85em;
-            line-height: 1.4;
-            white-space: normal;
+            font-size: 12px;
+            white-space: nowrap;
             pointer-events: none;
             opacity: 0;
-            transition: all 0.3s ease;
+            transition: opacity 0.3s ease;
+            margin-bottom: 8px;
             z-index: 1000;
-            width: max-content;
-            max-width: 280px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: -50px; /* Makes tooltip overlap the card above */
+            max-width: 200px;
+            white-space: normal;
+            text-align: center;
         }
         
         .tooltip::after {
@@ -189,277 +339,145 @@
             top: 100%;
             left: 50%;
             transform: translateX(-50%);
-            border-width: 8px;
+            border-width: 4px;
             border-style: solid;
-            border-color: rgba(0, 0, 0, 0.95) transparent transparent transparent;
+            border-color: #000000 transparent transparent transparent;
         }
         
-        .icon-wrapper:hover .tooltip {
+        .stat-card:hover .tooltip {
             opacity: 1;
-            transform: translateX(-50%) translateY(0);
-            visibility: visible;
-        }
-        
-        .stat-icon {
-            font-size: 2.5em;
-            margin-bottom: 5px;
-            filter: drop-shadow(0 0 10px currentColor);
-            transition: transform 0.3s ease;
-        }
-        
-        .icon-wrapper:hover .stat-icon {
-            transform: scale(1.1);
-        }
-        
-        .stat-value {
-            font-size: 2em;
-            font-weight: 700;
-            color: #ffffff;
-            margin: 5px 0 10px 0;
-            line-height: 1.2;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            word-break: break-word;
-            flex-grow: 0;
-            display: block;
-            text-align: center;
-        }
-        
-        .stat-label {
-            color: #b0b3b8;
-            font-size: 0.95em;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 10px;
-        }
-        
-        .loading {
-            color: #3498db;
-            font-style: italic;
-            animation: pulse 2s infinite;
-        }
-        
-        .error {
-            color: #e74c3c;
-            font-style: italic;
-        }
-        
-        .last-updated {
-            text-align: center;
-            color: #b0b3b8;
-            font-size: 0.9em;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .refresh-btn {
-            background: linear-gradient(135deg, #f7931a, #e67e00);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 0.9em;
-            font-weight: 600;
-            margin-left: 10px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(247, 147, 26, 0.3);
-        }
-        
-        .refresh-btn:hover {
-            background: linear-gradient(135deg, #e67e00, #cc6600);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(247, 147, 26, 0.4);
-        }
-        
-        .bitcoin-orange { color: #f7931a; }
-        .hash-blue { color: #00d4ff; }
-        .difficulty-purple { color: #a855f7; }
-        .price-green { color: #10b981; }
-        .blocks-red { color: #ef4444; }
-        .miners-teal { color: #06b6d4; }
-        .energy-yellow { color: #f1c40f; }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .status-indicator {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #10b981;
-            box-shadow: 0 0 10px #10b981;
-            animation: pulse 2s infinite;
-        }
-        
-        @media (max-width: 1024px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .dashboard {
-                padding: 20px;
-                margin: 10px;
-            }
-            
-            .header h1 {
-                font-size: 2em;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .stat-card {
-                padding: 20px;
-                min-height: 180px;
-            }
-            
-            .tooltip {
-                max-width: 90vw;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="dashboard">
-        <div class="header">
-            <h1>⚡ Bitcoin Network Statistics</h1>
-            <p class="subtitle">Real-time Bitcoin blockchain metrics and mining data</p>
-            <div class="update-notice">
-                <div class="update-badge">🆕 v2025.08.19</div>
-                <p class="update-text">
-                    Enhanced with accurate mining metrics and real-time updates. 
-                    <span class="version-features">New: Hash Rate Efficiency, Block Time, Revenue Analysis</span>
-                    <br>
-                    <span id="update-counter">Loading...</span>
-                </p>
-            </div>
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="/" class="nav-logo">
+            <div class="logo-icon">₿</div>
+            <span class="logo-text">Bitcoin Stats</span>
+        </a>
+        <div class="nav-links">
+            <a href="#" class="nav-link">Dashboard</a>
+            <a href="https://github.com/proto-sdk/bitcoin-dashboard" class="nav-link" target="_blank">GitHub</a>
+            <a href="https://github.com/proto-sdk/bitcoin-dashboard#-setting-up-local-energy-cost-tracking" class="nav-link" target="_blank">Setup</a>
+            <button class="nav-button" onclick="fetchData()">Refresh Data</button>
         </div>
-        
-        <div class="stats-grid">
-            <div class="stat-card">
-                <a href="https://github.com/proto-sdk/bitcoin-dashboard#-setting-up-local-energy-cost-tracking" target="_blank">
-                    <div class="status-indicator"></div>
-                    <div class="icon-wrapper">
-                        <div class="stat-icon energy-yellow">⚡</div>
-                        <div class="tooltip">Configure your local energy cost per kilowatt-hour (kWh) to calculate mining profitability in your area.</div>
-                    </div>
-                    <div class="stat-value" id="energyCost">Setup Required</div>
-                    <div class="stat-label">Local Energy Cost (kWh)</div>
-                </a>
-            </div>
+    </nav>
 
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>The pulse of Bitcoin.</h1>
+        <p class="subtitle">Real-time network statistics and mining metrics</p>
+        <div class="update-badge">
+            <span class="badge-icon"></span>
+            <span id="update-counter">Live data</span>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard">
+        <div class="stats-grid">
+            <!-- Energy Cost Card -->
+            <a href="https://github.com/proto-sdk/bitcoin-dashboard#-setting-up-local-energy-cost-tracking" target="_blank" class="stat-card">
+                <div class="status-indicator"></div>
+                <span class="stat-icon energy-yellow">⚡</span>
+                <div class="stat-value" id="energyCost">Setup Required</div>
+                <div class="stat-label">Local Energy Cost (kWh)</div>
+                <div class="tooltip">Configure your local energy cost</div>
+            </a>
+
+            <!-- Bitcoin Price -->
             <div class="stat-card" onclick="openDataSource('coingecko')">
                 <div class="status-indicator"></div>
-                <div class="icon-wrapper">
-                    <div class="stat-icon bitcoin-orange">₿</div>
-                    <div class="tooltip">Current market price of Bitcoin in USD.</div>
-                </div>
+                <span class="stat-icon bitcoin-orange">₿</span>
                 <div class="stat-value" id="price">Loading...</div>
                 <div class="stat-label">Bitcoin Price (USD)</div>
+                <div class="tooltip">Current market price</div>
             </div>
             
-            <div class="stat-card">
-                <a href="https://www.blockchain.com/explorer/charts/hash-rate" target="_blank">
-                    <div class="status-indicator"></div>
-                    <div class="icon-wrapper">
-                        <div class="stat-icon hash-blue">⚡</div>
-                        <div class="tooltip">Total computational power securing the Bitcoin network in Exahashes per second (EH/s).</div>
-                    </div>
-                    <div class="stat-value" id="hashrate">Loading...</div>
-                    <div class="stat-label">Network Hash Rate</div>
-                </a>
-            </div>
+            <!-- Network Hash Rate -->
+            <a href="https://www.blockchain.com/explorer/charts/hash-rate" target="_blank" class="stat-card">
+                <div class="status-indicator"></div>
+                <span class="stat-icon hash-blue">⚡</span>
+                <div class="stat-value" id="hashrate">Loading...</div>
+                <div class="stat-label">Network Hash Rate</div>
+                <div class="tooltip">Total computational power</div>
+            </a>
             
+            <!-- Mining Difficulty -->
             <div class="stat-card" onclick="openDataSource('blockchain-difficulty')">
                 <div class="status-indicator"></div>
-                <div class="icon-wrapper">
-                    <div class="stat-icon difficulty-purple">🎯</div>
-                    <div class="tooltip">Mining difficulty adjusts every 2,016 blocks to maintain 10-minute block intervals.</div>
-                </div>
+                <span class="stat-icon difficulty-purple">🎯</span>
                 <div class="stat-value" id="difficulty">Loading...</div>
                 <div class="stat-label">Mining Difficulty</div>
+                <div class="tooltip">Adjusts every 2,016 blocks</div>
             </div>
             
+            <!-- Block Height -->
             <div class="stat-card" onclick="openDataSource('blockstream')">
                 <div class="status-indicator"></div>
-                <div class="icon-wrapper">
-                    <div class="stat-icon blocks-red">🧱</div>
-                    <div class="tooltip">Current height of the Bitcoin blockchain. New block added approximately every 10 minutes.</div>
-                </div>
+                <span class="stat-icon blocks-red">🧱</span>
                 <div class="stat-value" id="blockHeight">Loading...</div>
                 <div class="stat-label">Current Block Height</div>
+                <div class="tooltip">Latest block number</div>
             </div>
             
-            <div class="stat-card">
-                <a href="https://www.blockchain.com/explorer/charts/miners-revenue" target="_blank">
-                    <div class="status-indicator"></div>
-                    <div class="icon-wrapper">
-                        <div class="stat-icon miners-teal">🛡️</div>
-                        <div class="tooltip">Daily revenue earned by Bitcoin miners: 3.125 BTC × 144 blocks × current price.</div>
-                    </div>
-                    <div class="stat-value" id="securityValue">Loading...</div>
-                    <div class="stat-label">Daily Mining Revenue</div>
-                </a>
-            </div>
+            <!-- Daily Mining Revenue -->
+            <a href="https://www.blockchain.com/explorer/charts/miners-revenue" target="_blank" class="stat-card">
+                <div class="status-indicator"></div>
+                <span class="stat-icon miners-teal">🛡️</span>
+                <div class="stat-value" id="securityValue">Loading...</div>
+                <div class="stat-label">Daily Mining Revenue</div>
+                <div class="tooltip">Miner earnings per day</div>
+            </a>
             
-            <div class="stat-card">
-                <a href="https://www.blockchain.com/explorer/charts/market-cap" target="_blank">
-                    <div class="status-indicator"></div>
-                    <div class="icon-wrapper">
-                        <div class="stat-icon price-green">💰</div>
-                        <div class="tooltip">Total market value of all Bitcoin in circulation (price × circulating supply).</div>
-                    </div>
-                    <div class="stat-value" id="marketCap">Loading...</div>
-                    <div class="stat-label">Market Cap (USD)</div>
-                </a>
-            </div>
+            <!-- Market Cap -->
+            <a href="https://www.blockchain.com/explorer/charts/market-cap" target="_blank" class="stat-card">
+                <div class="status-indicator"></div>
+                <span class="stat-icon price-green">💰</span>
+                <div class="stat-value" id="marketCap">Loading...</div>
+                <div class="stat-label">Market Cap (USD)</div>
+                <div class="tooltip">Total value of all Bitcoin</div>
+            </a>
             
+            <!-- Hash Rate Efficiency -->
             <div class="stat-card" onclick="openDataSource('blockchain-difficulty')">
                 <div class="status-indicator"></div>
-                <div class="icon-wrapper">
-                    <div class="stat-icon hash-blue">📊</div>
-                    <div class="tooltip">Hash rate per billion dollars of market cap. Shows security investment relative to network value.</div>
-                </div>
+                <span class="stat-icon hash-blue">📊</span>
                 <div class="stat-value" id="hashRateEfficiency">Loading...</div>
                 <div class="stat-label">Hash Rate Efficiency</div>
+                <div class="tooltip">Security per billion market cap</div>
             </div>
             
+            <!-- Average Block Time -->
             <div class="stat-card" onclick="openDataSource('blockstream')">
                 <div class="status-indicator"></div>
-                <div class="icon-wrapper">
-                    <div class="stat-icon blocks-red">⏱️</div>
-                    <div class="tooltip">Target time between blocks is 10 minutes. Difficulty adjusts to maintain this average.</div>
-                </div>
+                <span class="stat-icon blocks-red">⏱️</span>
                 <div class="stat-value" id="avgBlockTime">Loading...</div>
                 <div class="stat-label">Avg Block Time</div>
+                <div class="tooltip">Target: 10 minutes</div>
             </div>
             
+            <!-- Annualized Miner Revenue -->
             <div class="stat-card" onclick="openDataSource('blockchain-difficulty')">
                 <div class="status-indicator"></div>
-                <div class="icon-wrapper">
-                    <div class="stat-icon miners-teal">🔒</div>
-                    <div class="tooltip">Yearly revenue for Bitcoin miners (daily revenue × 365). Key metric for long-term network security.</div>
-                </div>
+                <span class="stat-icon miners-teal">🔒</span>
                 <div class="stat-value" id="networkSecurity">Loading...</div>
                 <div class="stat-label">Annualized Miner Revenue</div>
+                <div class="tooltip">Yearly mining revenue</div>
             </div>
         </div>
-        
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
         <div class="last-updated">
             <span id="lastUpdated">Loading...</span>
-            <button class="refresh-btn" onclick="fetchData()">🔄 Refresh</button>
         </div>
+        <button class="refresh-btn" onclick="fetchData()">
+            <span>🔄</span>
+            <span>Refresh</span>
+        </button>
     </div>
 
     <script>
@@ -514,7 +532,7 @@
             const dailyRevenue = dailyBlockReward * blocksPerDay * bitcoinPrice;
             const annualizedSecurity = dailyRevenue * 365; // Annualized miner revenue
             
-            return '$' + formatNumber(annualizedSecurity) + ' annually';
+            return '$' + formatNumber(annualizedSecurity) + '/year';
         }
 
         // Fetch data from multiple reliable APIs
@@ -558,6 +576,7 @@
                 // Reset any error states
                 document.querySelectorAll('.stat-value').forEach(el => {
                     el.classList.remove('error');
+                    el.classList.remove('loading');
                 });
                 
             } catch (error) {
@@ -587,51 +606,10 @@
         
         // Open data source in new tab
         function openDataSource(source) {
-            console.log('Clicked on:', source); // Debug log
             if (dataSources[source]) {
-                console.log('Opening URL:', dataSources[source]); // Debug log
                 window.open(dataSources[source], '_blank');
-            } else {
-                console.error('Data source not found:', source);
             }
         }
-
-        // Alternative: Add event listeners after DOM loads
-        function addClickHandlers() {
-            // Only add click handlers to cards that don't contain an <a> tag
-            const cards = Array.from(document.querySelectorAll('.stat-card')).filter(card => !card.querySelector('a'));
-            console.log('Found', cards.length, 'cards without direct links'); // Debug log
-            
-            const sources = ['coingecko', 'blockchain-difficulty', 'blockstream', 'blockchain-difficulty', 'blockchain-difficulty', 'blockstream', 'blockchain-difficulty'];
-            
-            cards.forEach((card, index) => {
-                console.log(`Card ${index + 1}: Adding click handler for ${sources[index]}`); // Debug log
-                
-                card.addEventListener('click', function(event) {
-                    // Don't trigger card click if clicking the icon
-                    if (event.target.closest('.icon-wrapper')) {
-                        event.stopPropagation();
-                        return;
-                    }
-                    
-                    console.log(`Card ${index + 1} clicked via addEventListener`); // Debug log
-                    event.preventDefault();
-                    openDataSource(sources[index]);
-                });
-            });
-        }
-
-        // Initial data load and handlers
-        document.addEventListener('DOMContentLoaded', function() {
-            addClickHandlers();
-            fetchData(); // Initial data load
-            updateCounter(); // Initial counter update
-            
-            // Set up auto-refresh every 5 minutes
-            setInterval(fetchData, 5 * 60 * 1000);
-            // Update counter every second
-            setInterval(updateCounter, 1000);
-        });
 
         // Update counter functionality
         let startTime = Date.now();
@@ -656,6 +634,17 @@
             
             document.getElementById('update-counter').textContent = counterText;
         }
+
+        // Initial data load
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchData();
+            updateCounter();
+            
+            // Set up auto-refresh every 5 minutes
+            setInterval(fetchData, 5 * 60 * 1000);
+            // Update counter every second
+            setInterval(updateCounter, 1000);
+        });
     </script>
 </body>
 </html>
