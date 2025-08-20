@@ -458,13 +458,13 @@
                 <div class="tooltip">Security per billion market cap</div>
             </div>
             
-            <!-- Average Confirmation Time -->
+            <!-- Confirmation Time -->
             <a href="https://www.blockchain.com/explorer/charts/avg-confirmation-time" target="_blank" class="stat-card">
                 <div class="status-indicator"></div>
                 <span class="stat-icon blocks-red">⏱️</span>
-                <div class="stat-value" id="avgBlockTime">Loading...</div>
-                <div class="stat-label">Average Confirmation Time</div>
-                <div class="tooltip">Average time for a transaction to be confirmed</div>
+                <div class="stat-value" id="confirmationTime">Loading...</div>
+                <div class="stat-label">Confirmation Time</div>
+                <div class="tooltip">Last 1M average BTC confirmation time</div>
             </a>
         </div>
     </div>
@@ -581,7 +581,21 @@
                 document.getElementById('securityValue').textContent = calculateSecurityValue(parseFloat(priceData.bitcoin.usd));
                 document.getElementById('marketCap').textContent = '$' + formatNumber(priceData.bitcoin.usd_market_cap);
                 document.getElementById('hashRateEfficiency').textContent = calculateHashRateEfficiency(hashrate, priceData.bitcoin.usd_market_cap);
-                document.getElementById('avgBlockTime').textContent = calculateBlockTime(blockHeight);
+
+                // Fetch 1M average confirmation time
+                try {
+                    const confTimeResp = await fetch('https://api.blockchain.info/charts/avg-confirmation-time?timespan=1months&format=json');
+                    const confTimeData = await confTimeResp.json();
+                    if(confTimeData && confTimeData.values && confTimeData.values.length > 0) {
+                        const lastConfMins = confTimeData.values[confTimeData.values.length-1].y;
+                        document.getElementById('confirmationTime').textContent = lastConfMins.toFixed(1) + ' min';
+                    } else {
+                        document.getElementById('confirmationTime').textContent = 'N/A';
+                    }
+                } catch (e) {
+                    document.getElementById('confirmationTime').textContent = 'Error';
+                }
+
                 
                 // Update timestamp
                 const now = new Date();
