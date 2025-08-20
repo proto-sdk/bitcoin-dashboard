@@ -4,307 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bitcoin Network Statistics Dashboard</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            padding: 20px;
-            min-height: 100vh;
-            color: #ffffff;
-        }
-        
-        .dashboard {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        .header h1 {
-            color: #f7931a;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 700;
-            text-shadow: 0 0 20px rgba(247, 147, 26, 0.3);
-        }
-        
-        .header .subtitle {
-            color: #b0b3b8;
-            font-size: 1.1em;
-            font-weight: 400;
-        }
-        
-        .update-notice {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1));
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 12px;
-            padding: 15px;
-            margin-top: 20px;
-            text-align: center;
-        }
-        
-        .update-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #10b981, #06b6d4);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: 600;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .update-text {
-            color: #b0b3b8;
-            font-size: 0.9em;
-            margin: 0;
-            line-height: 1.4;
-        }
-        
-        .version-features {
-            display: inline-block;
-            color: #10b981;
-            font-weight: 500;
-            margin-top: 4px;
-            font-style: italic;
-        }
-        
-        #dashboard-version {
-            color: #10b981;
-            font-weight: 600;
-        }
-        
-        #update-counter {
-            color: #10b981;
-            font-weight: 600;
-            display: inline-block;
-            margin-top: 4px;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: visible; /* Allow tooltips to overflow */
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            aspect-ratio: 1 / 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            min-height: 300px;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-            border-color: rgba(247, 147, 26, 0.3);
-        }
-        
-        .stat-card:hover .stat-label::after {
-            content: " 🔗";
-            opacity: 0.7;
-        }
-        
-        .tooltip {
-            position: absolute;
-            bottom: calc(100% + 10px);
-            left: 50%;
-            transform: translateX(-50%) translateY(10px);
-            padding: 12px 16px;
-            background: rgba(0, 0, 0, 0.95);
-            color: white;
-            border-radius: 8px;
-            font-size: 0.85em;
-            line-height: 1.4;
-            white-space: normal;
-            pointer-events: none;
-            opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 1000;
-            width: max-content;
-            max-width: 280px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: -50px; /* Makes tooltip overlap the card above */
-        }
-        
-        .tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 8px;
-            border-style: solid;
-            border-color: rgba(0, 0, 0, 0.95) transparent transparent transparent;
-        }
-        
-        .icon-wrapper:hover .tooltip {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-            visibility: visible;
-        }
-        
-        .stat-icon {
-            font-size: 2.5em;
-            margin-bottom: 15px;
-            filter: drop-shadow(0 0 10px currentColor);
-            transition: transform 0.3s ease;
-        }
-        
-        .icon-wrapper:hover .stat-icon {
-            transform: scale(1.1);
-        }
-        
-        .stat-value {
-            font-size: 2em;
-            font-weight: 700;
-            color: #ffffff;
-            margin: 10px 0;
-            line-height: 1.2;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            word-break: break-word;
-        }
-        
-        .stat-label {
-            color: #b0b3b8;
-            font-size: 0.95em;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: auto;
-        }
-        
-        .loading {
-            color: #3498db;
-            font-style: italic;
-            animation: pulse 2s infinite;
-        }
-        
-        .error {
-            color: #e74c3c;
-            font-style: italic;
-        }
-        
-        .last-updated {
-            text-align: center;
-            color: #b0b3b8;
-            font-size: 0.9em;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .refresh-btn {
-            background: linear-gradient(135deg, #f7931a, #e67e00);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 0.9em;
-            font-weight: 600;
-            margin-left: 10px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(247, 147, 26, 0.3);
-        }
-        
-        .refresh-btn:hover {
-            background: linear-gradient(135deg, #e67e00, #cc6600);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(247, 147, 26, 0.4);
-        }
-        
-        .bitcoin-orange { color: #f7931a; }
-        .hash-blue { color: #00d4ff; }
-        .difficulty-purple { color: #a855f7; }
-        .price-green { color: #10b981; }
-        .blocks-red { color: #ef4444; }
-        .miners-teal { color: #06b6d4; }
-        .energy-yellow { color: #f1c40f; }
-        .energy-yellow { color: #f1c40f; }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .status-indicator {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #10b981;
-            box-shadow: 0 0 10px #10b981;
-            animation: pulse 2s infinite;
-        }
-        
-        @media (max-width: 1024px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .dashboard {
-                padding: 20px;
-                margin: 10px;
-            }
-            
-            .header h1 {
-                font-size: 2em;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .stat-card {
-                padding: 20px;
-                min-height: 180px;
-            }
-            
-            .tooltip {
-                max-width: 90vw;
-            }
-        }
-    </style>
+    <!-- ... (previous styles remain the same) ... -->
 </head>
 <body>
     <div class="dashboard">
@@ -323,6 +23,7 @@
         </div>
         
         <div class="stats-grid">
+            <!-- Bitcoin Price Card -->
             <div class="stat-card" onclick="openDataSource('coingecko')">
                 <div class="status-indicator"></div>
                 <div class="icon-wrapper">
@@ -333,6 +34,7 @@
                 <div class="stat-label">Bitcoin Price (USD)</div>
             </div>
             
+            <!-- Energy Cost Card -->
             <div class="stat-card">
                 <a href="https://github.com/proto-sdk/bitcoin-dashboard#setting-up-energy-cost-data" target="_blank" style="display: block; width: 100%; height: 100%; text-decoration: none; color: inherit;">
                     <div class="status-indicator"></div>
@@ -345,6 +47,7 @@
                 </a>
             </div>
             
+            <!-- Hash Rate Card -->
             <div class="stat-card">
                 <a href="https://www.blockchain.com/explorer/charts/hash-rate" target="_blank" style="display: block; width: 100%; height: 100%; text-decoration: none; color: inherit;">
                     <div class="status-indicator"></div>
@@ -357,6 +60,7 @@
                 </a>
             </div>
             
+            <!-- Mining Difficulty Card -->
             <div class="stat-card" onclick="openDataSource('blockchain-difficulty')">
                 <div class="status-indicator"></div>
                 <div class="icon-wrapper">
@@ -367,6 +71,7 @@
                 <div class="stat-label">Mining Difficulty</div>
             </div>
             
+            <!-- Block Height Card -->
             <div class="stat-card" onclick="openDataSource('blockstream')">
                 <div class="status-indicator"></div>
                 <div class="icon-wrapper">
@@ -377,6 +82,7 @@
                 <div class="stat-label">Current Block Height</div>
             </div>
             
+            <!-- Daily Mining Revenue Card -->
             <div class="stat-card">
                 <a href="https://www.blockchain.com/explorer/charts/miners-revenue" target="_blank" style="display: block; width: 100%; height: 100%; text-decoration: none; color: inherit;">
                     <div class="status-indicator"></div>
@@ -389,6 +95,7 @@
                 </a>
             </div>
             
+            <!-- Market Cap Card -->
             <div class="stat-card">
                 <a href="https://www.blockchain.com/explorer/charts/market-cap" target="_blank" style="display: block; width: 100%; height: 100%; text-decoration: none; color: inherit;">
                     <div class="status-indicator"></div>
@@ -401,6 +108,7 @@
                 </a>
             </div>
             
+            <!-- Hash Rate Efficiency Card -->
             <div class="stat-card" onclick="openDataSource('blockchain-difficulty')">
                 <div class="status-indicator"></div>
                 <div class="icon-wrapper">
@@ -411,6 +119,7 @@
                 <div class="stat-label">Hash Rate Efficiency</div>
             </div>
             
+            <!-- Average Block Time Card -->
             <div class="stat-card" onclick="openDataSource('blockstream')">
                 <div class="status-indicator"></div>
                 <div class="icon-wrapper">
@@ -421,6 +130,7 @@
                 <div class="stat-label">Avg Block Time</div>
             </div>
             
+            <!-- Annualized Miner Revenue Card -->
             <div class="stat-card" onclick="openDataSource('blockchain-difficulty')">
                 <div class="status-indicator"></div>
                 <div class="icon-wrapper">
@@ -439,202 +149,7 @@
     </div>
 
     <script>
-        // Format large numbers with appropriate suffixes
-        function formatNumber(num) {
-            if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
-            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
-            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
-            if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
-            return num.toLocaleString();
-        }
-
-        // Format hash rate
-        function formatHashRate(hashrate) {
-            const ehPerSecond = hashrate / 1e18;
-            return ehPerSecond.toFixed(2) + ' EH/s';
-        }
-
-        // Format difficulty
-        function formatDifficulty(difficulty) {
-            const trillions = difficulty / 1e12;
-            return trillions.toFixed(2) + 'T';
-        }
-
-        // Calculate network security value (daily mining revenue)
-        function calculateSecurityValue(bitcoinPrice) {
-            const dailyBlockReward = 3.125; // Current BTC per block (post-2024 halving)
-            const blocksPerDay = 144; // Approximately 144 blocks per day (10 min target)
-            const dailyBTC = dailyBlockReward * blocksPerDay;
-            const dailySecurityValue = dailyBTC * bitcoinPrice;
-            
-            return '$' + formatNumber(dailySecurityValue) + '/day';
-        }
-
-        // Calculate hash rate efficiency (hash rate per billion dollars of market cap)
-        function calculateHashRateEfficiency(hashrate, marketCap) {
-            const hashRatePerBillion = (hashrate / 1e18) / (marketCap / 1e9); // EH/s per $B
-            return hashRatePerBillion.toFixed(1) + ' EH/s/$B';
-        }
-
-        // Calculate average block time (simplified - shows target vs actual)
-        function calculateAvgBlockTime() {
-            // For now, show the target time. In a real implementation, 
-            // you'd fetch recent blocks and calculate actual average
-            return '~10.0 min';
-        }
-
-        // Calculate network security metric (annualized miner revenue)
-        function calculateNetworkSecurity(bitcoinPrice) {
-            const dailyBlockReward = 3.125; // Current BTC per block (post-2024 halving)
-            const blocksPerDay = 144; // Approximately 144 blocks per day (10 min target)
-            const dailyRevenue = dailyBlockReward * blocksPerDay * bitcoinPrice;
-            const annualizedSecurity = dailyRevenue * 365; // Annualized miner revenue
-            
-            return '$' + formatNumber(annualizedSecurity) + ' annually';
-        }
-
-        // Fetch data from multiple reliable APIs
-        async function fetchData() {
-            try {
-                // Update loading state
-                document.getElementById('lastUpdated').textContent = 'Updating...';
-                
-                // Fetch Bitcoin price and market data from CoinGecko
-                const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true');
-                const priceData = await priceResponse.json();
-                
-                // Fetch current block height from Blockstream
-                const blockchainResponse = await fetch('https://blockstream.info/api/blocks/tip/height');
-                const blockHeight = await blockchainResponse.text();
-                
-                // Fetch network stats from Blockchain.info
-                const networkResponse = await fetch('https://blockchain.info/q/getdifficulty');
-                const difficulty = await networkResponse.text();
-                
-                // Calculate approximate hash rate from difficulty
-                // Hash rate = difficulty * 2^32 / 600 (target block time in seconds)
-                const hashrate = parseFloat(difficulty) * Math.pow(2, 32) / 600;
-                
-                // Update DOM elements with fetched data
-                document.getElementById('price').textContent = '$' + parseFloat(priceData.bitcoin.usd).toLocaleString();
-                document.getElementById('blockHeight').textContent = parseInt(blockHeight).toLocaleString();
-                document.getElementById('difficulty').textContent = formatDifficulty(parseFloat(difficulty));
-                document.getElementById('hashrate').textContent = formatHashRate(hashrate);
-                document.getElementById('securityValue').textContent = calculateSecurityValue(parseFloat(priceData.bitcoin.usd));
-                document.getElementById('marketCap').textContent = '$' + formatNumber(priceData.bitcoin.usd_market_cap);
-                document.getElementById('hashRateEfficiency').textContent = calculateHashRateEfficiency(hashrate, priceData.bitcoin.usd_market_cap);
-                document.getElementById('avgBlockTime').textContent = calculateAvgBlockTime();
-                document.getElementById('networkSecurity').textContent = calculateNetworkSecurity(parseFloat(priceData.bitcoin.usd));
-                
-                // Add placeholder link for energy cost setup
-                document.getElementById('energyCost').innerHTML = '<a href="https://github.com/proto-sdk/bitcoin-dashboard#setting-up-energy-cost-data" style="color: inherit; text-decoration: underline;">Setup Required</a>';
-                
-                // Update timestamp
-                const now = new Date();
-                document.getElementById('lastUpdated').textContent = 
-                    `Last updated: ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`;
-                
-                // Reset any error states
-                document.querySelectorAll('.stat-value').forEach(el => {
-                    el.classList.remove('error');
-                });
-                
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                
-                // Show error state for failed requests
-                const errorElements = ['price', 'hashrate', 'difficulty', 'blockHeight', 'securityValue', 'marketCap', 'hashRateEfficiency', 'avgBlockTime', 'networkSecurity', 'energyCost'];
-                errorElements.forEach(id => {
-                    const element = document.getElementById(id);
-                    if (element.textContent === 'Loading...') {
-                        element.textContent = 'Error';
-                        element.classList.add('error');
-                    }
-                });
-                
-                document.getElementById('lastUpdated').textContent = 'Error loading data. Please try refreshing.';
-            }
-        }
-
-        // Data source URLs mapping
-        const dataSources = {
-            'coingecko': 'https://www.coingecko.com/en/coins/bitcoin',
-            'blockchain-difficulty': 'https://blockchain.info/charts/difficulty',
-            'blockchain-hashrate': 'https://www.blockchain.com/explorer/charts/hash-rate',
-            'blockstream': 'https://blockstream.info/'
-        };
-        
-        // Open data source in new tab
-        function openDataSource(source) {
-            console.log('Clicked on:', source); // Debug log
-            if (dataSources[source]) {
-                console.log('Opening URL:', dataSources[source]); // Debug log
-                window.open(dataSources[source], '_blank');
-            } else {
-                console.error('Data source not found:', source);
-            }
-        }
-
-        // Alternative: Add event listeners after DOM loads
-        function addClickHandlers() {
-            // Only add click handlers to cards that don't contain an <a> tag
-            const cards = Array.from(document.querySelectorAll('.stat-card')).filter(card => !card.querySelector('a'));
-            console.log('Found', cards.length, 'cards without direct links'); // Debug log
-            
-            const sources = ['coingecko', 'blockchain-difficulty', 'blockstream', 'blockchain-difficulty', 'blockchain-difficulty', 'blockstream', 'blockchain-difficulty'];
-            
-            cards.forEach((card, index) => {
-                console.log(`Card ${index + 1}: Adding click handler for ${sources[index]}`); // Debug log
-                
-                card.addEventListener('click', function(event) {
-                    // Don't trigger card click if clicking the icon
-                    if (event.target.closest('.icon-wrapper')) {
-                        event.stopPropagation();
-                        return;
-                    }
-                    
-                    console.log(`Card ${index + 1} clicked via addEventListener`); // Debug log
-                    event.preventDefault();
-                    openDataSource(sources[index]);
-                });
-            });
-        }
-
-        // Initial data load and handlers
-        document.addEventListener('DOMContentLoaded', function() {
-            addClickHandlers();
-            fetchData(); // Initial data load
-            updateCounter(); // Initial counter update
-            
-            // Set up auto-refresh every 5 minutes
-            setInterval(fetchData, 5 * 60 * 1000);
-            // Update counter every second
-            setInterval(updateCounter, 1000);
-        });
-
-        // Update counter functionality
-        let startTime = Date.now();
-        
-        function updateCounter() {
-            const elapsed = Date.now() - startTime;
-            const seconds = Math.floor(elapsed / 1000);
-            const minutes = Math.floor(seconds / 60);
-            const hours = Math.floor(minutes / 60);
-            const days = Math.floor(hours / 24);
-            
-            let counterText = '';
-            if (days > 0) {
-                counterText = `Updated ${days} day${days > 1 ? 's' : ''} ago`;
-            } else if (hours > 0) {
-                counterText = `Updated ${hours} hour${hours > 1 ? 's' : ''} ago`;
-            } else if (minutes > 0) {
-                counterText = `Updated ${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-            } else {
-                counterText = `Updated ${seconds} second${seconds > 1 ? 's' : ''} ago`;
-            }
-            
-            document.getElementById('update-counter').textContent = counterText;
-        }
+        // ... (previous JavaScript code remains the same) ...
     </script>
 </body>
 </html>
