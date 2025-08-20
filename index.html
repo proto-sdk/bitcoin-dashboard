@@ -565,17 +565,14 @@
 
         // Alternative: Add event listeners after DOM loads
         function addClickHandlers() {
-            // Skip the Network Hash Rate card which has its own direct link
-            const cards = document.querySelectorAll('.stat-card:not(a.stat-card)');
-            console.log('Found', cards.length, 'cards'); // Debug log
+            // Only add click handlers to cards that don't contain an <a> tag
+            const cards = Array.from(document.querySelectorAll('.stat-card')).filter(card => !card.querySelector('a'));
+            console.log('Found', cards.length, 'cards without direct links'); // Debug log
+            
+            const sources = ['coingecko', 'blockchain-difficulty', 'blockstream', 'blockchain-difficulty', 'blockchain-difficulty', 'blockstream', 'blockchain-difficulty'];
             
             cards.forEach((card, index) => {
-                // Adjust index for sources array since we're skipping one card
-                let sourceIndex = index;
-                if (index >= 1) sourceIndex = index + 1; // Add 1 to skip Network Hash Rate position
-                
-                const sources = ['coingecko', 'blockchain-difficulty', 'blockstream', 'blockchain-difficulty', 'coingecko', 'blockchain-difficulty', 'blockstream', 'blockchain-difficulty'];
-                console.log(`Card ${index + 1}: Adding click handler for ${sources[sourceIndex]}`); // Debug log
+                console.log(`Card ${index + 1}: Adding click handler for ${sources[index]}`); // Debug log
                 
                 card.addEventListener('click', function(event) {
                     // Don't trigger card click if clicking the icon
@@ -586,7 +583,7 @@
                     
                     console.log(`Card ${index + 1} clicked via addEventListener`); // Debug log
                     event.preventDefault();
-                    openDataSource(sources[sourceIndex]);
+                    openDataSource(sources[index]);
                 });
             });
         }
