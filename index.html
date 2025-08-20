@@ -676,7 +676,9 @@
             const days = Math.floor(hours / 24);
             
             let counterText = '';
-            if (days > 0) {
+            if (minutes >= 5) {
+                counterText = `Updated 5 minutes ago`;
+            } else if (days > 0) {
                 counterText = `Updated ${days} day${days > 1 ? 's' : ''} ago`;
             } else if (hours > 0) {
                 counterText = `Updated ${hours} hour${hours > 1 ? 's' : ''} ago`;
