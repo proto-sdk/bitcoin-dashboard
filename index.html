@@ -254,6 +254,7 @@
         .price-green { color: #10b981; }
         .blocks-red { color: #ef4444; }
         .miners-teal { color: #06b6d4; }
+        .energy-yellow { color: #f1c40f; }
         
         @keyframes pulse {
             0%, 100% { opacity: 1; }
@@ -321,6 +322,18 @@
         </div>
         
         <div class="stats-grid">
+            <div class="stat-card">
+                <a href="https://github.com/proto-sdk/bitcoin-dashboard#setting-up-energy-cost-data" target="_blank" style="display: block; width: 100%; height: 100%; text-decoration: none; color: inherit;">
+                    <div class="status-indicator"></div>
+                    <div class="icon-wrapper">
+                        <div class="stat-icon energy-yellow">⚡</div>
+                        <div class="tooltip">Configure your local energy cost per kilowatt-hour (kWh) to calculate mining profitability in your area.</div>
+                    </div>
+                    <div class="stat-value" id="energyCost">Setup Required</div>
+                    <div class="stat-label">Local Energy Cost (kWh)</div>
+                </a>
+            </div>
+
             <div class="stat-card" onclick="openDataSource('coingecko')">
                 <div class="status-indicator"></div>
                 <div class="icon-wrapper">
