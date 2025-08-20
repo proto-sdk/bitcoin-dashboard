@@ -431,40 +431,40 @@
                 <div class="tooltip">Latest block number</div>
             </div>
             
-            <!-- Daily Mining Revenue -->
-            <a href="https://www.blockchain.com/explorer/charts/miners-revenue" target="_blank" class="stat-card">
+            <!-- Block Reward -->
+            <a href="https://blockchain.info/q/bcperblock" target="_blank" class="stat-card">
                 <div class="status-indicator"></div>
-                <span class="stat-icon miners-teal">🛡️</span>
-                <div class="stat-value" id="securityValue">Loading...</div>
-                <div class="stat-label">Daily Mining Revenue</div>
-                <div class="tooltip">Miner earnings per day</div>
+                <span class="stat-icon miners-teal">🏆</span>
+                <div class="stat-value" id="blockReward">Loading...</div>
+                <div class="stat-label">Block Reward</div>
+                <div class="tooltip">Current block reward in BTC</div>
             </a>
             
-            <!-- Market Cap -->
-            <a href="https://www.blockchain.com/explorer/charts/market-cap" target="_blank" class="stat-card">
+            <!-- Interval -->
+            <a href="https://blockchain.info/q/interval" target="_blank" class="stat-card">
                 <div class="status-indicator"></div>
-                <span class="stat-icon price-green">💰</span>
-                <div class="stat-value" id="marketCap">Loading...</div>
-                <div class="stat-label">Market Cap (USD)</div>
-                <div class="tooltip">Total value of all Bitcoin</div>
+                <span class="stat-icon price-green">⏲️</span>
+                <div class="stat-value" id="interval">Loading...</div>
+                <div class="stat-label">Interval</div>
+                <div class="tooltip">Average time between blocks in seconds</div>
             </a>
             
-            <!-- Hash Rate Efficiency -->
-            <div class="stat-card" onclick="openDataSource('blockchain-difficulty')">
+            <!-- Probability -->
+            <a href="https://blockchain.info/q/probability" target="_blank" class="stat-card">
                 <div class="status-indicator"></div>
-                <span class="stat-icon hash-blue">📊</span>
-                <div class="stat-value" id="hashRateEfficiency">Loading...</div>
-                <div class="stat-label">Hash Rate Efficiency</div>
-                <div class="tooltip">Security per billion market cap</div>
-            </div>
+                <span class="stat-icon hash-blue">🎲</span>
+                <div class="stat-value" id="probability">Loading...</div>
+                <div class="stat-label">Probability</div>
+                <div class="tooltip">Probability of finding a valid block (per hash attempt)</div>
+            </a>
             
-            <!-- Confirmation Time -->
-            <a href="https://www.blockchain.com/explorer/charts/avg-confirmation-time" target="_blank" class="stat-card">
+            <!-- Hashes to Win -->
+            <a href="https://blockchain.info/q/hashestowin" target="_blank" class="stat-card">
                 <div class="status-indicator"></div>
-                <span class="stat-icon blocks-red">⏱️</span>
-                <div class="stat-value" id="confirmationTime">Loading...</div>
-                <div class="stat-label">Confirmation Time</div>
-                <div class="tooltip">Last 1M average BTC confirmation time</div>
+                <span class="stat-icon blocks-red">🔢</span>
+                <div class="stat-value" id="hashesToWin">Loading...</div>
+                <div class="stat-label">Hashes to Win</div>
+                <div class="tooltip">Average number of hashes needed to find a block</div>
             </a>
         </div>
     </div>
@@ -578,30 +578,42 @@
                 document.getElementById('blockHeight').textContent = parseInt(blockHeight).toLocaleString();
                 document.getElementById('difficulty').textContent = formatDifficulty(parseFloat(difficulty));
                 document.getElementById('hashrate').textContent = formatHashRate(hashrate);
-                document.getElementById('securityValue').textContent = calculateSecurityValue(parseFloat(priceData.bitcoin.usd));
-                document.getElementById('marketCap').textContent = '$' + formatNumber(priceData.bitcoin.usd_market_cap);
-                document.getElementById('hashRateEfficiency').textContent = calculateHashRateEfficiency(hashrate, priceData.bitcoin.usd_market_cap);
-
-                // Fetch 1M average confirmation time
-                // Note: This API call is subject to CORS and may not work in browser-only deployments.
-                //       If it fails with a network or CORS error, deploy with a proxy or server fetch!
+                // Block reward
                 try {
-                    const confTimeResp = await fetch('https://api.blockchain.info/charts/avg-confirmation-time?timespan=1months&format=json');
-                    if(!confTimeResp.ok) throw new Error('API unavailable');
-                    const confTimeData = await confTimeResp.json();
-                    if(confTimeData && confTimeData.values && confTimeData.values.length > 0) {
-                        const lastConfMins = confTimeData.values[confTimeData.values.length-1].y;
-                        document.getElementById('confirmationTime').textContent = lastConfMins.toFixed(1) + ' min';
-                    } else {
-                        document.getElementById('confirmationTime').textContent = 'N/A';
-                    }
+                  const blockRewardResp = await fetch('https://blockchain.info/q/bcperblock');
+                  const blockReward = await blockRewardResp.text();
+                  document.getElementById('blockReward').textContent = parseFloat(blockReward).toFixed(4) + ' BTC';
                 } catch (e) {
-                    if (e instanceof TypeError && e.message.match(/network|cors|fetch/i)) {
-                        document.getElementById('confirmationTime').textContent = 'CORS Blocked';
-                    } else {
-                        document.getElementById('confirmationTime').textContent = 'Err';
-                    }
+                  document.getElementById('blockReward').textContent = 'N/A';
                 }
+
+                // Interval
+                try {
+                  const intervalResp = await fetch('https://blockchain.info/q/interval');
+                  const interval = await intervalResp.text();
+                  document.getElementById('interval').textContent = parseFloat(interval).toLocaleString() + ' sec';
+                } catch (e) {
+                  document.getElementById('interval').textContent = 'N/A';
+                }
+
+                // Probability
+                try {
+                  const probResp = await fetch('https://blockchain.info/q/probability');
+                  const prob = await probResp.text();
+                  document.getElementById('probability').textContent = parseFloat(prob).toExponential(2);
+                } catch (e) {
+                  document.getElementById('probability').textContent = 'N/A';
+                }
+
+                // Hashes to Win
+                try {
+                  const hashesResp = await fetch('https://blockchain.info/q/hashestowin');
+                  const hashes = await hashesResp.text();
+                  document.getElementById('hashesToWin').textContent = parseFloat(hashes).toLocaleString('en-US', {maximumFractionDigits:0});
+                } catch (e) {
+                  document.getElementById('hashesToWin').textContent = 'N/A';
+                }
+
 
                 
                 // Update timestamp
