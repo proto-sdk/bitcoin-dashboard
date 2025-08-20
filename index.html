@@ -687,6 +687,14 @@
             }
             
             document.getElementById('update-counter').textContent = counterText;
+            // Real-time browser tab update
+            const priceElem = document.getElementById('price');
+            let priceText = '';
+            if (priceElem && priceElem.textContent && !isNaN(priceElem.textContent.replace(/[^\d.]/g, ''))) {
+                priceText = '₿ ' + priceElem.textContent;
+            }
+            document.title = `${priceText ? priceText + ' - ' : ''}${counterText} | Bitcoin Network Stats`;
+
         }
 
         // Initial data load
