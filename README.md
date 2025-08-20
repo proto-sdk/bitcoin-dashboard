@@ -9,42 +9,43 @@ A real-time Bitcoin network statistics dashboard displaying live blockchain metr
 - 🎯 **Current mining difficulty**
 - 🧱 **Latest block height**
 - ⛏️ **Estimated active miners** (calculated from network hash rate)
+- ⚡ **Local energy cost data** (optional setup required)
 - 🔄 **Auto-refresh every 5 minutes**
 - 📱 **Responsive design** for all devices
 - 🎨 **Modern dark theme** with Bitcoin-inspired styling
 
 ## 📈 Live Dashboard
 
-**View the live dashboard:** [https://proto-btc-dashboard.github.io](https://proto-btc-dashboard.github.io)
-
-## 📊 Current Network Statistics
-
-As of the latest update, the dashboard displays:
-- Bitcoin network hash rate: ~500+ EH/s
-- Estimated active miners: ~500,000+ devices
-- Real-time price and market data
-- Current blockchain metrics
+**View the live dashboard:** [https://proto-sdk.github.io/bitcoin-dashboard](https://proto-sdk.github.io/bitcoin-dashboard)
 
 ## 🔗 Data Sources
 
 - **CoinGecko API** - Bitcoin price and market cap data
-- **Blockchain.info API** - Mining difficulty and network stats  
-- **Blockstream API** - Current block height and blockchain data
+- **Mempool.space API** - Network statistics
+- **Blockstream API** - Current block height
+- **U.S. EIA API** - Energy cost data (optional)
 
-## 📝 Embedding in Markdown
+## Setting Up Energy Cost Data
 
-To embed this dashboard in your markdown documents:
+To enable the local energy cost feature:
 
-```markdown
-## Bitcoin Network Statistics
+1. Sign up for an API key from the U.S. Energy Information Administration (EIA) at: https://www.eia.gov/opendata/
+2. Open `index.html` and locate the energy cost API section
+3. Replace `'YOUR_EIA_API_KEY'` with your actual API key
+4. Update the `stateCode` variable to match your state (e.g., 'CA' for California)
 
-<iframe src="https://proto-btc-dashboard.github.io" 
-        width="100%" 
-        height="600px" 
-        frameborder="0"
-        style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-</iframe>
+Example configuration:
+```javascript
+const eiaApiKey = 'your-actual-api-key';
+const stateCode = 'CA'; // Replace with your state code
 ```
+
+## 📱 Mobile Responsive
+
+The dashboard automatically adapts to different screen sizes:
+- Desktop: 3-column grid layout
+- Tablet: 2-column grid layout  
+- Mobile: Single column layout
 
 ## 🛠 Technical Details
 
@@ -55,20 +56,20 @@ To embed this dashboard in your markdown documents:
 - **Auto-refresh mechanism**
 - **Modern glassmorphism design**
 
-## 📱 Mobile Responsive
+## 📝 Embedding in Markdown
 
-The dashboard automatically adapts to different screen sizes:
-- Desktop: 3-column grid layout
-- Tablet: 2-column grid layout  
-- Mobile: Single column layout
+To embed this dashboard in your markdown documents:
 
-## 🎨 Customization
+```markdown
+## Bitcoin Network Statistics
 
-The dashboard uses CSS custom properties and can be easily customized:
-- Color scheme
-- Refresh intervals
-- Data sources
-- Layout and styling
+<iframe src="https://proto-sdk.github.io/bitcoin-dashboard" 
+        width="100%" 
+        height="600px" 
+        frameborder="0"
+        style="border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+</iframe>
+```
 
 ## 📄 License
 
