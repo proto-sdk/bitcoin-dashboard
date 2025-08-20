@@ -114,7 +114,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
+            overflow: visible; /* Allow tooltips to overflow */
             cursor: pointer;
             text-decoration: none;
             color: inherit;
@@ -124,11 +124,6 @@
             justify-content: space-between;
             align-items: center;
             min-height: 300px;
-        }
-        
-        a.stat-card {
-            color: inherit;
-            text-decoration: none;
         }
         
         .stat-card:hover {
@@ -142,13 +137,7 @@
             opacity: 0.7;
         }
         
-        .icon-wrapper {
-            position: relative;
-            cursor: help;
-            padding: 5px;
-        }
-        
-        .icon-tooltip {
+        .tooltip {
             position: absolute;
             bottom: calc(100% + 10px);
             left: 50%;
@@ -169,10 +158,10 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            visibility: hidden;
+            margin-bottom: -50px; /* Makes tooltip overlap the card above */
         }
         
-        .icon-tooltip::after {
+        .tooltip::after {
             content: '';
             position: absolute;
             top: 100%;
@@ -183,7 +172,7 @@
             border-color: rgba(0, 0, 0, 0.95) transparent transparent transparent;
         }
         
-        .icon-wrapper:hover .icon-tooltip {
+        .icon-wrapper:hover .tooltip {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
             visibility: visible;
@@ -191,6 +180,7 @@
         
         .stat-icon {
             font-size: 2.5em;
+            margin-bottom: 15px;
             filter: drop-shadow(0 0 10px currentColor);
             transition: transform 0.3s ease;
         }
@@ -308,7 +298,7 @@
                 min-height: 180px;
             }
             
-            .icon-tooltip {
+            .tooltip {
                 max-width: 90vw;
             }
         }
@@ -335,7 +325,7 @@
                 <div class="status-indicator"></div>
                 <div class="icon-wrapper">
                     <div class="stat-icon bitcoin-orange">₿</div>
-                    <div class="icon-tooltip">Current market price of Bitcoin in USD.</div>
+                    <div class="tooltip">Current market price of Bitcoin in USD.</div>
                 </div>
                 <div class="stat-value" id="price">Loading...</div>
                 <div class="stat-label">Bitcoin Price (USD)</div>
@@ -346,7 +336,7 @@
                     <div class="status-indicator"></div>
                     <div class="icon-wrapper">
                         <div class="stat-icon hash-blue">⚡</div>
-                        <div class="icon-tooltip">Total computational power securing the Bitcoin network in Exahashes per second (EH/s).</div>
+                        <div class="tooltip">Total computational power securing the Bitcoin network in Exahashes per second (EH/s).</div>
                     </div>
                     <div class="stat-value" id="hashrate">Loading...</div>
                     <div class="stat-label">Network Hash Rate</div>
@@ -357,7 +347,7 @@
                 <div class="status-indicator"></div>
                 <div class="icon-wrapper">
                     <div class="stat-icon difficulty-purple">🎯</div>
-                    <div class="icon-tooltip">Mining difficulty adjusts every 2,016 blocks to maintain 10-minute block intervals.</div>
+                    <div class="tooltip">Mining difficulty adjusts every 2,016 blocks to maintain 10-minute block intervals.</div>
                 </div>
                 <div class="stat-value" id="difficulty">Loading...</div>
                 <div class="stat-label">Mining Difficulty</div>
@@ -367,7 +357,7 @@
                 <div class="status-indicator"></div>
                 <div class="icon-wrapper">
                     <div class="stat-icon blocks-red">🧱</div>
-                    <div class="icon-tooltip">Current height of the Bitcoin blockchain. New block added approximately every 10 minutes.</div>
+                    <div class="tooltip">Current height of the Bitcoin blockchain. New block added approximately every 10 minutes.</div>
                 </div>
                 <div class="stat-value" id="blockHeight">Loading...</div>
                 <div class="stat-label">Current Block Height</div>
@@ -378,7 +368,7 @@
                     <div class="status-indicator"></div>
                     <div class="icon-wrapper">
                         <div class="stat-icon miners-teal">🛡️</div>
-                        <div class="icon-tooltip">Daily revenue earned by Bitcoin miners: 3.125 BTC × 144 blocks × current price.</div>
+                        <div class="tooltip">Daily revenue earned by Bitcoin miners: 3.125 BTC × 144 blocks × current price.</div>
                     </div>
                     <div class="stat-value" id="securityValue">Loading...</div>
                     <div class="stat-label">Daily Mining Revenue</div>
@@ -390,7 +380,7 @@
                     <div class="status-indicator"></div>
                     <div class="icon-wrapper">
                         <div class="stat-icon price-green">💰</div>
-                        <div class="icon-tooltip">Total market value of all Bitcoin in circulation (price × circulating supply).</div>
+                        <div class="tooltip">Total market value of all Bitcoin in circulation (price × circulating supply).</div>
                     </div>
                     <div class="stat-value" id="marketCap">Loading...</div>
                     <div class="stat-label">Market Cap (USD)</div>
@@ -401,7 +391,7 @@
                 <div class="status-indicator"></div>
                 <div class="icon-wrapper">
                     <div class="stat-icon hash-blue">📊</div>
-                    <div class="icon-tooltip">Hash rate per billion dollars of market cap. Shows security investment relative to network value.</div>
+                    <div class="tooltip">Hash rate per billion dollars of market cap. Shows security investment relative to network value.</div>
                 </div>
                 <div class="stat-value" id="hashRateEfficiency">Loading...</div>
                 <div class="stat-label">Hash Rate Efficiency</div>
@@ -411,7 +401,7 @@
                 <div class="status-indicator"></div>
                 <div class="icon-wrapper">
                     <div class="stat-icon blocks-red">⏱️</div>
-                    <div class="icon-tooltip">Target time between blocks is 10 minutes. Difficulty adjusts to maintain this average.</div>
+                    <div class="tooltip">Target time between blocks is 10 minutes. Difficulty adjusts to maintain this average.</div>
                 </div>
                 <div class="stat-value" id="avgBlockTime">Loading...</div>
                 <div class="stat-label">Avg Block Time</div>
@@ -421,7 +411,7 @@
                 <div class="status-indicator"></div>
                 <div class="icon-wrapper">
                     <div class="stat-icon miners-teal">🔒</div>
-                    <div class="icon-tooltip">Yearly revenue for Bitcoin miners (daily revenue × 365). Key metric for long-term network security.</div>
+                    <div class="tooltip">Yearly revenue for Bitcoin miners (daily revenue × 365). Key metric for long-term network security.</div>
                 </div>
                 <div class="stat-value" id="networkSecurity">Loading...</div>
                 <div class="stat-label">Annualized Miner Revenue</div>
@@ -527,6 +517,11 @@
                 document.getElementById('lastUpdated').textContent = 
                     `Last updated: ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`;
                 
+                // Reset any error states
+                document.querySelectorAll('.stat-value').forEach(el => {
+                    el.classList.remove('error');
+                });
+                
             } catch (error) {
                 console.error('Error fetching data:', error);
                 
@@ -536,7 +531,7 @@
                     const element = document.getElementById(id);
                     if (element.textContent === 'Loading...') {
                         element.textContent = 'Error';
-                        element.className = 'stat-value error';
+                        element.classList.add('error');
                     }
                 });
                 
@@ -587,10 +582,18 @@
                 });
             });
         }
-        }
 
-        // Auto-refresh every 5 minutes (300,000 milliseconds)
-        setInterval(fetchData, 5 * 60 * 1000);
+        // Initial data load and handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            addClickHandlers();
+            fetchData(); // Initial data load
+            updateCounter(); // Initial counter update
+            
+            // Set up auto-refresh every 5 minutes
+            setInterval(fetchData, 5 * 60 * 1000);
+            // Update counter every second
+            setInterval(updateCounter, 1000);
+        });
 
         // Update counter functionality
         let startTime = Date.now();
@@ -615,18 +618,6 @@
             
             document.getElementById('update-counter').textContent = counterText;
         }
-        
-        // Update counter every second
-        setInterval(updateCounter, 1000);
-        
-        // Initial counter update
-        updateCounter();
-
-        // Initial data load when page loads
-        fetchData();
-        
-        // Add click handlers after DOM is loaded
-        document.addEventListener('DOMContentLoaded', addClickHandlers);
     </script>
 </body>
 </html>
