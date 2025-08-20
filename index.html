@@ -512,8 +512,18 @@
 
         // Calculate actual block time (time since last block)
         function calculateBlockTime(blockTimestamp) {
+            // Ensure we have a valid timestamp
+            if (!blockTimestamp || isNaN(blockTimestamp)) {
+                return 'Unknown';
+            }
+            
             const now = Math.floor(Date.now() / 1000); // Current time in seconds
             const timeSinceBlock = now - blockTimestamp; // Time difference in seconds
+            
+            // Ensure the time difference is valid
+            if (isNaN(timeSinceBlock) || timeSinceBlock < 0) {
+                return 'Unknown';
+            }
             
             if (timeSinceBlock < 60) {
                 return `${timeSinceBlock}s ago`;
@@ -523,6 +533,9 @@
             } else {
                 const hours = Math.floor(timeSinceBlock / 3600);
                 const minutes = Math.floor((timeSinceBlock % 3600) / 60);
+                if (minutes === 0) {
+                    return `${hours}h ago`;
+                }
                 return `${hours}h ${minutes}m ago`;
             }
         }
@@ -552,9 +565,16 @@
                 const blockHeight = await blockchainResponse.text();
                 
                 // Fetch latest block details to get timestamp
-                const latestBlockResponse = await fetch('https://blockstream.info/api/blocks/tip');
-                const latestBlockData = await latestBlockResponse.json();
-                const blockTimestamp = latestBlockData.timestamp;
+                let blockTimestamp = null;
+                try {
+                    const latestBlockResponse = await fetch('https://blockstream.info/api/blocks/tip');
+                    if (latestBlockResponse.ok) {
+                        const latestBlockData = await latestBlockResponse.json();
+                        blockTimestamp = latestBlockData.timestamp;
+                    }
+                } catch (blockError) {
+                    console.warn('Failed to fetch block timestamp:', blockError);
+                }
                 
                 // Fetch network stats from Blockchain.info
                 const networkResponse = await fetch('https://blockchain.info/q/getdifficulty');
