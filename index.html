@@ -134,6 +134,13 @@
             animation: pulse 2s infinite;
         }
         
+        .refresh-info {
+            font-size: 14px;
+            color: #888;
+            margin-top: 16px;
+            line-height: 1.4;
+        }
+        
         /* Main Content */
         .dashboard {
             max-width: 1200px;
@@ -373,6 +380,7 @@
             <span class="badge-icon"></span>
             <span id="update-counter">Live data</span>
         </div>
+        <div class="refresh-info">Data refreshes automatically every 5 minutes. Click the refresh button below for instant updates.</div>
     </div>
 
     <!-- Dashboard -->
@@ -381,7 +389,7 @@
             <!-- Energy Cost Card -->
             <a href="https://github.com/proto-sdk/bitcoin-dashboard#-setting-up-local-energy-cost-tracking" target="_blank" class="stat-card">
                 <div class="status-indicator"></div>
-                <span class="stat-icon energy-yellow">⚡</span>
+                <span class="stat-icon energy-yellow">🔧</span>
                 <div class="stat-value" id="energyCost">Setup Required</div>
                 <div class="stat-label">Local Energy Cost (kWh)</div>
                 <div class="tooltip">Configure your local energy cost</div>
@@ -450,14 +458,14 @@
                 <div class="tooltip">Security per billion market cap</div>
             </div>
             
-            <!-- Block Time -->
-            <div class="stat-card" onclick="openDataSource('blockstream')">
+            <!-- Average Confirmation Time -->
+            <a href="https://www.blockchain.com/explorer/charts/avg-confirmation-time" target="_blank" class="stat-card">
                 <div class="status-indicator"></div>
                 <span class="stat-icon blocks-red">⏱️</span>
                 <div class="stat-value" id="avgBlockTime">Loading...</div>
-                <div class="stat-label">Block Time</div>
-                <div class="tooltip">Time since last block</div>
-            </div>
+                <div class="stat-label">Average Confirmation Time</div>
+                <div class="tooltip">Average time for a transaction to be confirmed</div>
+            </a>
         </div>
     </div>
 
@@ -511,33 +519,14 @@
         }
 
         // Calculate actual block time (time since last block)
-        function calculateBlockTime(blockTimestamp) {
-            // Ensure we have a valid timestamp
-            if (!blockTimestamp || isNaN(blockTimestamp)) {
+        function calculateBlockTime(blockHeight) {
+            // Since we can't reliably get the timestamp, we'll show the block height instead
+            // and indicate it's the latest block
+            if (!blockHeight || isNaN(blockHeight)) {
                 return 'Unknown';
             }
             
-            const now = Math.floor(Date.now() / 1000); // Current time in seconds
-            const timeSinceBlock = now - blockTimestamp; // Time difference in seconds
-            
-            // Ensure the time difference is valid
-            if (isNaN(timeSinceBlock) || timeSinceBlock < 0) {
-                return 'Unknown';
-            }
-            
-            if (timeSinceBlock < 60) {
-                return `${timeSinceBlock}s ago`;
-            } else if (timeSinceBlock < 3600) {
-                const minutes = Math.floor(timeSinceBlock / 60);
-                return `${minutes}m ago`;
-            } else {
-                const hours = Math.floor(timeSinceBlock / 3600);
-                const minutes = Math.floor((timeSinceBlock % 3600) / 60);
-                if (minutes === 0) {
-                    return `${hours}h ago`;
-                }
-                return `${hours}h ${minutes}m ago`;
-            }
+            return `Block #${parseInt(blockHeight).toLocaleString()}`;
         }
 
         // Calculate network security metric (annualized miner revenue)
@@ -592,7 +581,7 @@
                 document.getElementById('securityValue').textContent = calculateSecurityValue(parseFloat(priceData.bitcoin.usd));
                 document.getElementById('marketCap').textContent = '$' + formatNumber(priceData.bitcoin.usd_market_cap);
                 document.getElementById('hashRateEfficiency').textContent = calculateHashRateEfficiency(hashrate, priceData.bitcoin.usd_market_cap);
-                document.getElementById('avgBlockTime').textContent = calculateBlockTime(blockTimestamp);
+                document.getElementById('avgBlockTime').textContent = calculateBlockTime(blockHeight);
                 
                 // Update timestamp
                 const now = new Date();
