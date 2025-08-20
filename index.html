@@ -457,15 +457,6 @@
                 <div class="stat-label">Avg Block Time</div>
                 <div class="tooltip">Target: 10 minutes</div>
             </div>
-            
-            <!-- Annualized Miner Revenue -->
-            <div class="stat-card" onclick="openDataSource('blockchain-difficulty')">
-                <div class="status-indicator"></div>
-                <span class="stat-icon miners-teal">🔒</span>
-                <div class="stat-value" id="networkSecurity">Loading...</div>
-                <div class="stat-label">Annualized Miner Revenue</div>
-                <div class="tooltip">Yearly mining revenue</div>
-            </div>
         </div>
     </div>
 
@@ -566,7 +557,6 @@
                 document.getElementById('marketCap').textContent = '$' + formatNumber(priceData.bitcoin.usd_market_cap);
                 document.getElementById('hashRateEfficiency').textContent = calculateHashRateEfficiency(hashrate, priceData.bitcoin.usd_market_cap);
                 document.getElementById('avgBlockTime').textContent = calculateAvgBlockTime();
-                document.getElementById('networkSecurity').textContent = calculateNetworkSecurity(parseFloat(priceData.bitcoin.usd));
                 
                 // Update timestamp
                 const now = new Date();
@@ -583,7 +573,7 @@
                 console.error('Error fetching data:', error);
                 
                 // Show error state for failed requests
-                const errorElements = ['price', 'hashrate', 'difficulty', 'blockHeight', 'securityValue', 'marketCap', 'hashRateEfficiency', 'avgBlockTime', 'networkSecurity'];
+                const errorElements = ['price', 'hashrate', 'difficulty', 'blockHeight', 'securityValue', 'marketCap', 'hashRateEfficiency', 'avgBlockTime'];
                 errorElements.forEach(id => {
                     const element = document.getElementById(id);
                     if (element.textContent === 'Loading...') {
