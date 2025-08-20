@@ -49,6 +49,64 @@ This is an **open-source project** under MIT License. You can:
 
 To enable personalized energy cost tracking for mining profitability:
 
+### 🌍 Multi-User Configuration
+
+**Multiple users can configure this dashboard to view their local energy costs!** Each user creates their own personalized version:
+
+#### **Option 1: Fork & Customize (Recommended)**
+Each user gets their own live dashboard:
+
+1. **Fork the repository:**
+   - Go to https://github.com/proto-sdk/bitcoin-dashboard
+   - Click "Fork" to create your own copy
+   - You get: `yourusername.github.io/bitcoin-dashboard`
+
+2. **Configure your energy costs:**
+   - Edit your `index.html` file
+   - Add your EIA API key
+   - Set your state code (CA, TX, NY, etc.)
+   - Enable GitHub Pages in your fork settings
+
+3. **Result:** Your own live dashboard with your local energy costs
+
+#### **Option 2: Download & Host Locally**
+Run it on your own computer/server:
+```bash
+git clone https://github.com/proto-sdk/bitcoin-dashboard.git
+cd bitcoin-dashboard
+# Edit index.html with your energy settings
+# Open in browser or host on your server
+```
+
+#### **Option 3: Multiple Configurations**
+Advanced users can create multiple versions:
+- `bitcoin-dashboard-california` (CA energy costs)
+- `bitcoin-dashboard-texas` (TX energy costs)
+- `bitcoin-dashboard-newyork` (NY energy costs)
+
+### 📊 Example Multi-User Scenario:
+
+**Alice (California):**
+- Forks repo → `alice.github.io/bitcoin-dashboard`
+- Sets: `stateCode = 'CA'`, `eiaApiKey = 'alice_key'`
+- Sees: California energy costs (~$0.25/kWh)
+
+**Bob (Texas):**
+- Forks repo → `bob.github.io/bitcoin-dashboard`
+- Sets: `stateCode = 'TX'`, `eiaApiKey = 'bob_key'`
+- Sees: Texas energy costs (~$0.12/kWh)
+
+**Carol (New York):**
+- Forks repo → `carol.github.io/bitcoin-dashboard`
+- Sets: `stateCode = 'NY'`, `eiaApiKey = 'carol_key'`
+- Sees: New York energy costs (~$0.18/kWh)
+
+### 🔒 Privacy & Security:
+- ✅ **Each user's API key** stays in their own fork
+- ✅ **No central database** - everything is client-side
+- ✅ **No data sharing** between users
+- ✅ **Complete control** over your own version
+
 ### Step 1: Get an EIA API Key
 1. Visit [https://www.eia.gov/opendata/](https://www.eia.gov/opendata/)
 2. Click "Register" and create a free account
