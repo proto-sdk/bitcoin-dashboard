@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>GitHub PR Dashboard</title>
-    <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+    <title>Proto API PR Dashboard</title>
+<meta name="apple-mobile-web-app-title" content="Proto API PR Dashboard">
+<meta name="application-name" content="Proto API PR Dashboard">
+    <link rel="manifest" href="manifest.json">
+
+    <link rel="icon" type="image/svg+xml" href="assets/images/proto_logo.png">
+    <link rel="apple-touch-icon" href="assets/images/proto_logo.png">
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -23,6 +28,11 @@
             display: flex;
             align-items: center;
             gap: 15px;
+        }
+        .block-logo {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
         }
         .controls-section {
             display: flex;
@@ -101,6 +111,24 @@
             margin-right: 4px;
             margin-bottom: 4px;
         }
+        .pr-status-label {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+            margin-left: 8px;
+        }
+        .status-open {
+            background-color: #2ea44f;
+        }
+        .status-closed {
+            background-color: #cb2431;
+        }
+        .status-merged {
+            background-color: #6f42c1;
+        }
         .loading {
             text-align: center;
             padding: 20px;
@@ -117,6 +145,30 @@
             gap: 10px;
             align-items: center;
         }
+        .pr-stats {
+            margin-left: 20px;
+            padding: 8px 12px;
+            background-color: white;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #586069;
+            display: flex;
+            gap: 15px;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .stat-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .stat-open { background-color: #2ea44f; }
+        .stat-closed { background-color: #cb2431; }
+        .stat-merged { background-color: #6f42c1; }
         .filter-input {
             padding: 8px;
             border: 1px solid #e1e4e8;
@@ -153,7 +205,8 @@
     <div class="container">
         <div class="header">
             <div class="logo-section">
-                <h1>GitHub PR Dashboard</h1>
+                <img src="assets/images/proto_logo.png" alt="Proto Logo" class="block-logo">
+                <h1>Proto API PR Dashboard</h1>
             </div>
             <div class="controls-section">
                 <input type="password" id="token" class="token-input" placeholder="Enter GitHub token">
@@ -179,6 +232,20 @@
                 <option value="closed">Closed</option>
                 <option value="merged">Merged</option>
             </select>
+            <div id="pr-stats" class="pr-stats">
+                <div class="stat-item">
+                    <div class="stat-dot stat-open"></div>
+                    <span id="open-percentage">Open: 0%</span>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-dot stat-closed"></div>
+                    <span id="closed-percentage">Closed: 0%</span>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-dot stat-merged"></div>
+                    <span id="merged-percentage">Merged: 0%</span>
+                </div>
+            </div>
         </div>
         <div id="pr-list"></div>
         <div id="debug-info" class="debug-info"></div>
@@ -188,23 +255,18 @@
         let allPRs = [];
         let refreshInterval;
         let refreshTimeout;
-        const REFRESH_INTERVAL = 15 * 60 * 1000; // 15 minutes in milliseconds
-
-        // Load token and start refresh cycle when page loads
+        const REFRESH_INTERVAL = 15 * 60 * 1000;
         window.onload = function() {
             const savedToken = localStorage.getItem('githubToken');
             if (savedToken) {
                 document.getElementById('token').value = savedToken;
                 checkTokenExpiration();
-                fetchPRs(); // Automatically fetch PRs if token exists
+                fetchPRs();
             }
             startRefreshTimer();
         };
-
-        // Add event listener for when the page becomes visible again
         document.addEventListener('visibilitychange', function() {
             if (document.visibilityState === 'visible') {
-                // When page becomes visible, fetch new data and restart timer
                 const savedToken = localStorage.getItem('githubToken');
                 if (savedToken) {
                     fetchPRs();
@@ -212,20 +274,15 @@
                 startRefreshTimer();
             }
         });
-
         function startRefreshTimer() {
-            // Clear existing timers
             if (refreshInterval) {
                 clearInterval(refreshInterval);
             }
             if (refreshTimeout) {
                 clearTimeout(refreshTimeout);
             }
-
             let timeLeft = REFRESH_INTERVAL;
             updateRefreshTimer(timeLeft);
-
-            // Update the countdown timer every second
             refreshInterval = setInterval(() => {
                 timeLeft -= 1000;
                 if (timeLeft <= 0) {
@@ -234,13 +291,10 @@
                     updateRefreshTimer(timeLeft);
                 }
             }, 1000);
-
-            // Set timeout for auto refresh
             refreshTimeout = setTimeout(() => {
                 autoRefresh();
             }, REFRESH_INTERVAL);
         }
-
         function updateRefreshTimer(timeLeft) {
             const minutes = Math.floor(timeLeft / 60000);
             const seconds = Math.floor((timeLeft % 60000) / 1000);
@@ -249,7 +303,6 @@
                 timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             }
         }
-
         async function autoRefresh() {
             const token = document.getElementById('token').value.trim();
             if (token) {
@@ -257,7 +310,6 @@
             }
             startRefreshTimer();
         }
-
         async function manualRefresh() {
             const refreshInfo = document.querySelector('.refresh-info');
             if (refreshInfo) {
@@ -269,16 +321,13 @@
             }
             startRefreshTimer();
         }
-
         function checkTokenExpiration() {
             const token = document.getElementById('token').value.trim();
             const expirationElement = document.getElementById('token-expiration');
-            
             if (!token) {
                 expirationElement.textContent = '';
                 return;
             }
-
             try {
                 const tokenParts = token.split('.');
                 if (tokenParts.length === 3) {
@@ -286,7 +335,6 @@
                     if (payload.exp) {
                         const expirationDate = new Date(payload.exp * 1000);
                         const now = new Date();
-                        
                         if (expirationDate < now) {
                             expirationElement.textContent = 'Token has expired';
                         } else {
@@ -299,22 +347,36 @@
                 console.error('Error checking token expiration:', e);
             }
         }
-
         function showDebugInfo(data) {
             const debugInfo = document.getElementById('debug-info');
             debugInfo.textContent = JSON.stringify(data, null, 2);
             debugInfo.style.display = 'block';
         }
-
+        function updatePRStats() {
+            if (allPRs.length === 0) {
+                document.getElementById('open-percentage').textContent = 'Open: 0%';
+                document.getElementById('closed-percentage').textContent = 'Closed: 0%';
+                document.getElementById('merged-percentage').textContent = 'Merged: 0%';
+                return;
+            }
+            const openPRs = allPRs.filter(pr => !pr.closed_at).length;
+            const closedPRs = allPRs.filter(pr => pr.closed_at && !pr.merged_at).length;
+            const mergedPRs = allPRs.filter(pr => pr.merged_at).length;
+            const total = allPRs.length;
+            const openPercentage = Math.round((openPRs / total) * 100);
+            const closedPercentage = Math.round((closedPRs / total) * 100);
+            const mergedPercentage = Math.round((mergedPRs / total) * 100);
+            document.getElementById('open-percentage').textContent = `Open: ${openPercentage}%`;
+            document.getElementById('closed-percentage').textContent = `Closed: ${closedPercentage}%`;
+            document.getElementById('merged-percentage').textContent = `Merged: ${mergedPercentage}%`;
+        }
         function filterAndDisplayPRs() {
             const authorFilter = document.getElementById('author-filter').value.toLowerCase();
             const titleFilter = document.getElementById('title-filter').value.toLowerCase();
             const statusFilter = document.getElementById('status-filter').value;
-
             const filteredPRs = allPRs.filter(pr => {
                 const matchesAuthor = pr.user.login.toLowerCase().includes(authorFilter);
                 const matchesTitle = pr.title.toLowerCase().includes(titleFilter);
-                
                 let matchesStatus = true;
                 if (statusFilter === 'open') {
                     matchesStatus = !pr.closed_at;
@@ -323,50 +385,44 @@
                 } else if (statusFilter === 'merged') {
                     matchesStatus = pr.merged_at;
                 }
-
                 return matchesAuthor && matchesTitle && matchesStatus;
             });
-
             displayPRs(filteredPRs);
         }
-
         function displayPRs(prs) {
             const prList = document.getElementById('pr-list');
-            
             if (prs.length === 0) {
                 prList.innerHTML = '<div class="loading">No pull requests found</div>';
                 return;
             }
-
             prList.innerHTML = prs.map(pr => {
                 const createdDate = new Date(pr.created_at).toLocaleDateString();
                 const updatedDate = new Date(pr.updated_at).toLocaleDateString();
-                
                 let status = 'Open';
                 let statusColor = '#2ea44f';
-                
+                let statusClass = 'status-open';
                 if (pr.merged_at) {
                     status = 'Merged';
                     statusColor = '#6f42c1';
+                    statusClass = 'status-merged';
                 } else if (pr.closed_at) {
                     status = 'Closed';
                     statusColor = '#cb2431';
+                    statusClass = 'status-closed';
                 }
-
                 const labels = pr.labels.map(label => {
                     const textColor = getContrastColor(label.color);
                     return `<span class="pr-label" style="background-color: #${label.color}; color: ${textColor}">
                         ${label.name}
                     </span>`;
                 }).join('');
-
                 return `
                     <div class="pr-card">
                         <div class="pr-header">
                             <h3 class="pr-title">
                                 <a href="${pr.html_url}" target="_blank">${pr.title}</a>
                             </h3>
-                            <span style="color: ${statusColor};">${status}</span>
+                            <span class="pr-status-label ${statusClass}">${status}</span>
                         </div>
                         <div class="pr-meta">
                             by ${pr.user.login} • Created: ${createdDate} • Updated: ${updatedDate}
@@ -378,50 +434,35 @@
                 `;
             }).join('');
         }
-
         function getContrastColor(hexcolor) {
-            // Convert 6-digit hex to RGB values
             const r = parseInt(hexcolor.substr(0, 2), 16);
             const g = parseInt(hexcolor.substr(2, 2), 16);
             const b = parseInt(hexcolor.substr(4, 2), 16);
-            
-            // Calculate perceived brightness using the formula: (R * 299 + G * 587 + B * 114) / 1000
             const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-            
-            // Return black for bright colors, white for dark colors
             return brightness > 128 ? '#000000' : '#ffffff';
         }
-
         async function fetchPRs() {
             const token = document.getElementById('token').value.trim();
             const prList = document.getElementById('pr-list');
             const debugInfo = document.getElementById('debug-info');
             debugInfo.style.display = 'none';
-
             if (!token) {
                 prList.innerHTML = '<div class="error">Please enter a GitHub token</div>';
                 return;
             }
-
-            // Save token in localStorage
             localStorage.setItem('githubToken', token);
             checkTokenExpiration();
-
             prList.innerHTML = '<div class="loading">Loading pull requests...</div>';
-
             try {
                 const response = await fetch('https://api.github.com/repos/btc-mining/miner-firmware/pulls?state=all&base=main&sort=updated&direction=desc&per_page=100', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/vnd.github.v3+json'
                     },
-                    // Add cache control to prevent browser caching
                     cache: 'no-store'
                 });
-
                 const responseData = await response.text();
                 let jsonData;
-                
                 try {
                     jsonData = JSON.parse(responseData);
                 } catch (e) {
@@ -433,7 +474,6 @@
                     });
                     throw new Error('Failed to parse response data');
                 }
-
                 if (!response.ok) {
                     showDebugInfo({
                         status: response.status,
@@ -442,8 +482,8 @@
                     });
                     throw new Error(`GitHub API Error: ${response.status} ${response.statusText}`);
                 }
-
                 allPRs = jsonData;
+                updatePRStats();
                 filterAndDisplayPRs();
             } catch (error) {
                 prList.innerHTML = `<div class="error">Error: ${error.message}</div>`;
