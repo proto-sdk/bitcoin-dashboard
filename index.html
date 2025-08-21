@@ -425,7 +425,7 @@
                             <span class="pr-status-label ${statusClass}">${status}</span>
                         </div>
                         <div class="pr-meta">
-                            by ${pr.user.login} • Created: ${createdDate} • Updated: ${updatedDate}
+                            by ${pr.user.login} • Created: ${createdDate} <span class="pr-updated-badge" data-updated-at="${pr.updated_at}"></span>
                         </div>
                         <div class="pr-labels">
                             ${labels}
@@ -438,6 +438,33 @@
             const r = parseInt(hexcolor.substr(0, 2), 16);
             const g = parseInt(hexcolor.substr(2, 2), 16);
             const b = parseInt(hexcolor.substr(4, 2), 16);
+// Real-time update for PR updated badge
+let badgeInterval = null;
+function updateAllUpdatedBadges() {
+  document.querySelectorAll('.pr-updated-badge').forEach(badge => {
+    const updatedAt = new Date(badge.getAttribute('data-updated-at'));
+    const now = new Date();
+    const diffMin = Math.floor((now - updatedAt) / 60000);
+    let txt = '• Updated: ';
+    if (diffMin < 1) {
+      txt += 'just now';
+    } else if(diffMin === 1) {
+      txt += '1 minute ago';
+    } else {
+      txt += `${diffMin} minutes ago`;
+    }
+    badge.textContent = txt;
+  });
+}
+function startUpdatedBadgesInterval() {
+  if (badgeInterval) clearInterval(badgeInterval);
+  updateAllUpdatedBadges();
+  badgeInterval = setInterval(updateAllUpdatedBadges, 60000);
+}
+// Link PR rendering to badge live updates
+const origDisplayPRs = displayPRs;
+displayPRs = function(prs) { origDisplayPRs(prs); startUpdatedBadgesInterval(); }
+
             const brightness = (r * 299 + g * 587 + b * 114) / 1000;
             return brightness > 128 ? '#000000' : '#ffffff';
         }
