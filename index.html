@@ -555,20 +555,43 @@
                 const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true');
                 const priceData = await priceResponse.json();
                 
-                // Fetch current block height from Blockstream
-                const blockchainResponse = await fetch('https://blockstream.info/api/blocks/tip/height');
-                const blockHeight = await blockchainResponse.text();
-                
-                // Fetch latest block details to get timestamp
+                // Fetch current block height with fallback APIs
+                let blockHeight = null;
                 let blockTimestamp = null;
-                try {
-                    const latestBlockResponse = await fetch('https://blockstream.info/api/blocks/tip');
-                    if (latestBlockResponse.ok) {
-                        const latestBlockData = await latestBlockResponse.json();
-                        blockTimestamp = latestBlockData.timestamp;
+                
+                // Try multiple APIs for block height
+                const blockHeightAPIs = [
+                    { url: 'https://mempool.space/api/blocks/tip/height', type: 'text' },
+                    { url: 'https://blockchain.info/q/getblockcount', type: 'text' },
+                    { url: 'https://blockstream.info/api/blocks/tip/height', type: 'text' }
+                ];
+                
+                for (const api of blockHeightAPIs) {
+                    try {
+                        const response = await fetch(api.url);
+                        if (response.ok) {
+                            blockHeight = await response.text();
+                            console.log(`Block height fetched from: ${api.url}`);
+                            break;
+                        }
+                    } catch (error) {
+                        console.warn(`Failed to fetch from ${api.url}:`, error);
                     }
-                } catch (blockError) {
-                    console.warn('Failed to fetch block timestamp:', blockError);
+                }
+                
+                // Try to get latest block timestamp from mempool.space
+                if (blockHeight) {
+                    try {
+                        const latestBlockResponse = await fetch('https://mempool.space/api/blocks/tip');
+                        if (latestBlockResponse.ok) {
+                            const latestBlockData = await latestBlockResponse.json();
+                            if (Array.isArray(latestBlockData) && latestBlockData.length > 0) {
+                                blockTimestamp = latestBlockData[0].timestamp;
+                            }
+                        }
+                    } catch (blockError) {
+                        console.warn('Failed to fetch block timestamp:', blockError);
+                    }
                 }
                 
                 // Fetch network stats from Blockchain.info
@@ -581,7 +604,14 @@
                 
                 // Update DOM elements with fetched data
                 document.getElementById('price').textContent = '$' + parseFloat(priceData.bitcoin.usd).toLocaleString();
-                document.getElementById('blockHeight').textContent = parseInt(blockHeight).toLocaleString();
+                
+                // Update block height only if we successfully fetched it
+                if (blockHeight) {
+                    document.getElementById('blockHeight').textContent = parseInt(blockHeight).toLocaleString();
+                } else {
+                    document.getElementById('blockHeight').textContent = 'N/A';
+                    document.getElementById('blockHeight').classList.add('error');
+                }
                 document.getElementById('difficulty').textContent = formatDifficulty(parseFloat(difficulty));
                 document.getElementById('hashrate').textContent = formatHashRate(hashrate);
                 // Block reward
@@ -713,7 +743,7 @@
         <div class="data-sources" style="font-size:13px; color:#999; margin-top:8px; text-align:center;">
             <strong>Data sources:</strong>
             <a href="https://coingecko.com/" target="_blank">CoinGecko</a> |
-            <a href="https://blockstream.info/" target="_blank">Blockstream</a> |
+            <a href="https://mempool.space/" target="_blank">Mempool.space</a> |
             <a href="https://blockchain.info/" target="_blank">Blockchain.info</a>
         </div>
 </body>
