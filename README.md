@@ -1,6 +1,6 @@
 # Bitcoin Network Statistics Dashboard
 
-A real-time Bitcoin network statistics dashboard displaying live blockchain metrics and mining data with customizable energy cost tracking.
+A real-time Bitcoin network statistics dashboard displaying live blockchain metrics and mining profitability data with customizable energy cost tracking.
 
 ## 🚀 Features
 
@@ -10,12 +10,16 @@ A real-time Bitcoin network statistics dashboard displaying live blockchain metr
 - 🎯 **Mining Difficulty** - Current network difficulty (adjusts every 2,016 blocks)
 - 🧱 **Block Height** - Latest block number in the blockchain
 - 🏆 **Block Reward** - Current block reward in BTC
+- 💡 **Break-even Electricity Price** - Maximum profitable electricity rate for your hardware
+- 🎰 **Pool Luck/Performance** - Your mining pool's performance vs expected
+- ⏰ **Time-of-Use Electricity Rates** - Current rate based on peak/off-peak schedule
 - ⏱️ **Block Interval** - Average time between blocks in seconds
 - 🎲 **Mining Probability** - Probability of finding a valid block per hash attempt
 - 🔢 **Hashes to Win** - Average number of hashes needed to find a block
 - 🔄 **Auto-refresh every 5 minutes**
+- ⏱️ **Real-time update counter**
 - 📱 **Responsive design** for all devices
-- 🎨 **Modern dark theme** with Bitcoin-inspired styling
+- 🎨 **Modern dark theme** with orange accent borders
 
 ## 📈 Live Dashboard
 
@@ -23,11 +27,11 @@ A real-time Bitcoin network statistics dashboard displaying live blockchain metr
 
 ## 📊 Dashboard Cards
 
-The dashboard displays 9 key Bitcoin network statistics:
+The dashboard displays 12 key Bitcoin network statistics:
 
 ### Core Network Metrics
 1. **Bitcoin Price (USD)** - Current market price from CoinGecko
-2. **Network Hash Rate** - Total computational power securing the network
+2. **Network Hash Rate** - Total computational power securing the network (EH/s)
 3. **Mining Difficulty** - Current difficulty adjustment (updates every 2,016 blocks)
 4. **Current Block Height** - Latest block number on the blockchain
 
@@ -37,10 +41,19 @@ The dashboard displays 9 key Bitcoin network statistics:
 7. **Probability** - Probability of finding a valid block per hash attempt
 8. **Hashes to Win** - Average number of hashes needed to find a block
 
-### Personalization
-9. **Local Energy Cost (kWh)** - Customizable energy cost tracking for mining profitability
+### Mining Operator Tools (Configurable)
+9. **Local Energy Cost (kWh)** - Your local electricity rate for profitability calculations
+10. **Break-even Electricity Price** - Maximum electricity cost where mining remains profitable
+11. **Pool Luck/Performance** - Your pool's 24h performance (100% = expected)
+12. **Time-of-Use Rate** - Current electricity rate based on peak/off-peak schedule
 
-[Rest of existing README content...]
+## 🎮 Navigation
+
+The dashboard includes navigation tabs in the top-right corner:
+- **Dashboard** - Main statistics view
+- **GitHub** - Link to the repository
+- **Setup** - Configuration instructions
+- **Refresh Data** - Manual data refresh
 
 ## 🔧 How to Use This Dashboard
 
@@ -68,6 +81,33 @@ This is an **open-source project** under MIT License. You can:
            width="100%" height="600px" frameborder="0">
    </iframe>
    ```
+
+## ⚡ Configuring Mining Operator Tools
+
+### Break-even Electricity Price
+Click the card to configure your miner's efficiency (W/TH):
+- **S19 XP**: 21.5 W/TH
+- **S19j Pro**: 29.5 W/TH
+- **S19**: 34.5 W/TH
+- **S9**: 98 W/TH
+
+The dashboard will calculate the maximum electricity price where your mining operation remains profitable based on current BTC price and network difficulty.
+
+### Pool Luck/Performance
+Click to enter your mining pool name. The dashboard will display your pool's performance:
+- **>105%**: Lucky (green) - Finding more blocks than expected
+- **95-105%**: Normal (white) - Expected performance
+- **<95%**: Unlucky (red) - Finding fewer blocks than expected
+
+### Time-of-Use Electricity Rates
+Configure your peak and off-peak electricity schedule in JSON format:
+```json
+{
+  "peak": {"start": 16, "end": 21, "rate": 0.15},
+  "offPeak": {"rate": 0.08}
+}
+```
+The dashboard will automatically display the current rate based on your local time.
 
 ## ⚡ Setting Up Local Energy Cost Tracking
 
@@ -147,25 +187,28 @@ Common US state codes for the EIA API:
 - **Multiple API sources** for reliability
 - **Error handling** and fallback states
 - **Responsive grid layout**
-- **Auto-refresh mechanism**
-- **Modern glassmorphism design**
+- **Auto-refresh mechanism** every 5 minutes
+- **Real-time update counter** showing time since last refresh
+- **Local storage** for persistent configuration
+- **Modern glassmorphism design** with dark theme
 - **CORS-friendly APIs** for client-side requests
 
 ## 📱 Mobile Responsive
 
 The dashboard automatically adapts to different screen sizes:
-- **Desktop:** 3-column grid layout
+- **Desktop:** 3-4 column grid layout
 - **Tablet:** 2-column grid layout  
 - **Mobile:** Single column layout
 
 ## 🎨 Customization Options
 
 You can easily customize:
-- **Colors:** Modify CSS color variables
-- **Refresh rate:** Change `setInterval` timing
+- **Colors:** Modify CSS color variables and border colors
+- **Refresh rate:** Change `setInterval` timing (default: 5 minutes)
 - **Data sources:** Update API endpoints
 - **Layout:** Adjust grid columns and card order
 - **Metrics:** Add or remove statistics cards
+- **Mining configurations:** Store your hardware specs locally
 
 ## 📄 Open Source License
 
@@ -190,4 +233,4 @@ Contributions welcome! Please:
 
 ---
 
-**Perfect for:** Research papers, presentations, websites, trading analysis, mining profitability calculations, and any content requiring real-time Bitcoin network statistics with personalized energy cost tracking.
+**Perfect for:** Mining operators, traders, researchers, presentations, mining profitability analysis, and anyone needing real-time Bitcoin network statistics with personalized mining calculations.
