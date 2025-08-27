@@ -4,12 +4,15 @@ A real-time Bitcoin network statistics dashboard displaying live blockchain metr
 
 ## 🚀 Features
 
-- 📊 **Real-time Bitcoin price** and market cap
-- ⚡ **Network hash rate** (EH/s) 
-- 🎯 **Current mining difficulty**
-- 🧱 **Latest block height**
-- ⛏️ **Daily mining revenue** and annualized projections
-- ⚡ **Local energy cost tracking** (customizable)
+- ⚡ **Local Energy Cost Tracking** - Configure your local energy cost per kWh
+- 📊 **Bitcoin Price** - Real-time price in USD from CoinGecko
+- ⚡ **Network Hash Rate** - Total computational power of the Bitcoin network
+- 🎯 **Mining Difficulty** - Current network difficulty (adjusts every 2,016 blocks)
+- 🧱 **Block Height** - Latest block number in the blockchain
+- 🏆 **Block Reward** - Current block reward in BTC
+- ⏱️ **Block Interval** - Average time between blocks in seconds
+- 🎲 **Mining Probability** - Probability of finding a valid block per hash attempt
+- 🔢 **Hashes to Win** - Average number of hashes needed to find a block
 - 🔄 **Auto-refresh every 5 minutes**
 - 📱 **Responsive design** for all devices
 - 🎨 **Modern dark theme** with Bitcoin-inspired styling
@@ -17,6 +20,27 @@ A real-time Bitcoin network statistics dashboard displaying live blockchain metr
 ## 📈 Live Dashboard
 
 **View the live dashboard:** [https://proto-sdk.github.io/bitcoin-dashboard](https://proto-sdk.github.io/bitcoin-dashboard)
+
+## 📊 Dashboard Cards
+
+The dashboard displays 9 key Bitcoin network statistics:
+
+### Core Network Metrics
+1. **Bitcoin Price (USD)** - Current market price from CoinGecko
+2. **Network Hash Rate** - Total computational power securing the network
+3. **Mining Difficulty** - Current difficulty adjustment (updates every 2,016 blocks)
+4. **Current Block Height** - Latest block number on the blockchain
+
+### Mining Statistics
+5. **Block Reward** - Current block reward in BTC (includes halvings)
+6. **Interval** - Average time between blocks in seconds
+7. **Probability** - Probability of finding a valid block per hash attempt
+8. **Hashes to Win** - Average number of hashes needed to find a block
+
+### Personalization
+9. **Local Energy Cost (kWh)** - Customizable energy cost tracking for mining profitability
+
+[Rest of existing README content...]
 
 ## 🔧 How to Use This Dashboard
 
@@ -49,82 +73,21 @@ This is an **open-source project** under MIT License. You can:
 
 To enable personalized energy cost tracking for mining profitability:
 
-### 🌍 Multi-User Configuration
+### Step 1: Get a Free EIA API Key
+1. Visit [EIA API Registration](https://www.eia.gov/opendata/register.php)
+2. Register for a free account
+3. Get your API key from the dashboard
 
-**Multiple users can configure this dashboard to view their local energy costs!** Each user creates their own personalized version:
+### Step 2: Find Your State Code
+Look up your state's abbreviation:
+- `CA` - California
+- `TX` - Texas  
+- `NY` - New York
+- `FL` - Florida
+- [Full list of state codes](https://www.eia.gov/state/)
 
-#### **Option 1: Fork & Customize (Recommended)**
-Each user gets their own live dashboard:
-
-1. **Fork the repository:**
-   - Go to https://github.com/proto-sdk/bitcoin-dashboard
-   - Click "Fork" to create your own copy
-   - You get: `yourusername.github.io/bitcoin-dashboard`
-
-2. **Configure your energy costs:**
-   - Edit your `index.html` file
-   - Add your EIA API key
-   - Set your state code (CA, TX, NY, etc.)
-   - Enable GitHub Pages in your fork settings
-
-3. **Result:** Your own live dashboard with your local energy costs
-
-#### **Option 2: Download & Host Locally**
-Run it on your own computer/server:
-```bash
-git clone https://github.com/proto-sdk/bitcoin-dashboard.git
-cd bitcoin-dashboard
-# Edit index.html with your energy settings
-# Open in browser or host on your server
-```
-
-#### **Option 3: Multiple Configurations**
-Advanced users can create multiple versions:
-- `bitcoin-dashboard-california` (CA energy costs)
-- `bitcoin-dashboard-texas` (TX energy costs)
-- `bitcoin-dashboard-newyork` (NY energy costs)
-
-### 📊 Example Multi-User Scenario:
-
-**Alice (California):**
-- Forks repo → `alice.github.io/bitcoin-dashboard`
-- Sets: `stateCode = 'CA'`, `eiaApiKey = 'alice_key'`
-- Sees: California energy costs (~$0.25/kWh)
-
-**Bob (Texas):**
-- Forks repo → `bob.github.io/bitcoin-dashboard`
-- Sets: `stateCode = 'TX'`, `eiaApiKey = 'bob_key'`
-- Sees: Texas energy costs (~$0.12/kWh)
-
-**Carol (New York):**
-- Forks repo → `carol.github.io/bitcoin-dashboard`
-- Sets: `stateCode = 'NY'`, `eiaApiKey = 'carol_key'`
-- Sees: New York energy costs (~$0.18/kWh)
-
-### 🔒 Privacy & Security:
-- ✅ **Each user's API key** stays in their own fork
-- ✅ **No central database** - everything is client-side
-- ✅ **No data sharing** between users
-- ✅ **Complete control** over your own version
-
-### Step 1: Get an EIA API Key
-1. Visit [https://www.eia.gov/opendata/](https://www.eia.gov/opendata/)
-2. Click "Register" and create a free account
-3. Copy your API key (starts with a long string of characters)
-
-### Step 2: Configure Your Dashboard
-1. **If using your own fork:** Edit `index.html` in your repository
-2. **If hosting locally:** Edit your local `index.html` file
-
-### Step 3: Update the Energy Cost Code
-Find this section in `index.html` (around line 400):
-
-```javascript
-// Add placeholder link for energy cost setup
-document.getElementById('energyCost').innerHTML = '<a href="https://github.com/proto-sdk/bitcoin-dashboard#setting-up-energy-cost-data" style="color: inherit; text-decoration: underline;">Setup Required</a>';
-```
-
-Replace it with:
+### Step 3: Update the Code
+In `index.html`, find the energy cost section and replace:
 
 ```javascript
 // Fetch local energy cost data using the Energy Information Administration (EIA) API
@@ -174,6 +137,7 @@ Common US state codes for the EIA API:
 
 - **CoinGecko API** - Bitcoin price and market cap data
 - **Mempool.space API** - Network statistics and difficulty
+- **Blockchain.info API** - Block reward, interval, probability, and hashes to win data
 - **Blockstream API** - Current block height
 - **U.S. EIA API** - Energy cost data (optional, requires setup)
 
