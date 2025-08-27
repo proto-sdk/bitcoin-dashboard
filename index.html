@@ -28,6 +28,40 @@
             margin: 0 auto;
         }
         
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .nav-tab {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .nav-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #FF6B35;
+        }
+        
+        .nav-tab.active {
+            background: #FF6B35;
+            border-color: #FF6B35;
+        }
+        
         .header {
             text-align: center;
             margin-bottom: 40px;
@@ -43,6 +77,16 @@
         .header p {
             color: #999999;
             font-size: 18px;
+        }
+        
+        .update-counter {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-size: 16px;
+            color: #FEB019;
         }
         
         .stats-grid {
@@ -68,14 +112,6 @@
             transform: translateY(-2px);
             background: #1a1a1a;
             border-color: #FF8C42;
-        }
-        
-        .stat-card.configurable {
-            border: 2px solid #FEB019;
-        }
-        
-        .stat-card.configurable:hover {
-            border-color: #FFD23F;
         }
         
         .status-indicator {
@@ -227,19 +263,39 @@
             .stat-card {
                 padding: 20px;
             }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Navigation Header -->
+        <div class="nav-header">
+            <div></div> <!-- Empty div for spacing -->
+            <div class="nav-tabs">
+                <a href="#" class="nav-tab active">Dashboard</a>
+                <a href="https://github.com/proto-sdk/bitcoin-dashboard" target="_blank" class="nav-tab">GitHub</a>
+                <a href="https://github.com/proto-sdk/bitcoin-dashboard#-setting-up-local-energy-cost-tracking" target="_blank" class="nav-tab">Setup</a>
+                <button class="nav-tab" onclick="fetchData()">Refresh Data</button>
+            </div>
+        </div>
+        
         <div class="header">
             <h1>⚡ Bitcoin Network Statistics</h1>
             <p>Real-time blockchain metrics and mining profitability data</p>
         </div>
         
+        <!-- Real-time Update Counter -->
+        <div class="update-counter" id="update-counter">
+            Updated 0 seconds ago
+        </div>
+        
         <div class="stats-grid">
             <!-- Energy Cost Card -->
-            <a href="https://github.com/proto-sdk/bitcoin-dashboard#-setting-up-local-energy-cost-tracking" target="_blank" class="stat-card configurable">
+            <a href="https://github.com/proto-sdk/bitcoin-dashboard#-setting-up-local-energy-cost-tracking" target="_blank" class="stat-card">
                 <div class="status-indicator"></div>
                 <span class="stat-icon energy-yellow">🔧</span>
                 <div class="stat-value" id="energyCost">Setup Required</div>
@@ -294,7 +350,7 @@
             </a>
             
             <!-- Break-even Electricity Price -->
-            <div class="stat-card configurable" onclick="calculateBreakeven()">
+            <div class="stat-card" onclick="calculateBreakeven()">
                 <div class="status-indicator"></div>
                 <span class="stat-icon breakeven-pink">💡</span>
                 <div class="stat-value" id="breakevenPrice">Setup Required</div>
@@ -304,7 +360,7 @@
             </div>
             
             <!-- Pool Luck/Performance -->
-            <div class="stat-card configurable" onclick="configurePool()">
+            <div class="stat-card" onclick="configurePool()">
                 <div class="status-indicator"></div>
                 <span class="stat-icon pool-cyan">🎰</span>
                 <div class="stat-value" id="poolLuck">Setup Required</div>
@@ -314,7 +370,7 @@
             </div>
             
             <!-- Time-of-Use Electricity Rates -->
-            <div class="stat-card configurable" onclick="configureTOU()">
+            <div class="stat-card" onclick="configureTOU()">
                 <div class="status-indicator"></div>
                 <span class="stat-icon time-lime">⏰</span>
                 <div class="stat-value" id="touRate">Setup Required</div>
@@ -357,10 +413,6 @@
         <div class="last-updated">
             <span id="lastUpdated">Loading...</span>
         </div>
-        <button class="refresh-btn" onclick="fetchData()">
-            <span>🔄</span>
-            <span>Refresh</span>
-        </button>
         <div class="data-sources">
             <strong>Data sources:</strong>
             <a href="https://coingecko.com/" target="_blank">CoinGecko</a> |
@@ -378,9 +430,47 @@
             touSchedule: JSON.parse(localStorage.getItem('touSchedule') || '{}'),
             energyCost: localStorage.getItem('energyCost') || null
         };
+        
+        // Update counter functionality
+        let startTime = Date.now();
+        
+        function updateCounter() {
+            const elapsed = Date.now() - startTime;
+            const seconds = Math.floor(elapsed / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            
+            let counterText = '';
+            if (minutes >= 5) {
+                counterText = `Updated 5 minutes ago`;
+            } else if (days > 0) {
+                counterText = `Updated ${days} day${days > 1 ? 's' : ''} ago`;
+            } else if (hours > 0) {
+                counterText = `Updated ${hours} hour${hours > 1 ? 's' : ''} ago`;
+            } else if (minutes > 0) {
+                counterText = `Updated ${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+            } else {
+                counterText = `Updated ${seconds} second${seconds > 1 ? 's' : ''} ago`;
+            }
+            
+            document.getElementById('update-counter').textContent = counterText;
+            
+            // Real-time browser tab update
+            const priceElem = document.getElementById('price');
+            let priceText = '';
+            if (priceElem && priceElem.textContent && !isNaN(priceElem.textContent.replace(/[^\d.]/g, ''))) {
+                priceText = '₿ ' + priceElem.textContent;
+            }
+            document.title = `${priceText ? priceText + ' - ' : ''}${counterText} | Bitcoin Network Stats`;
+        }
 
         async function fetchData() {
             try {
+                // Reset the counter
+                startTime = Date.now();
+                updateCounter();
+                
                 // Reset all values to loading state
                 document.querySelectorAll('.stat-value').forEach(el => {
                     if (!['energyCost', 'breakevenPrice', 'poolLuck', 'touRate'].includes(el.id)) {
@@ -566,8 +656,12 @@
         // Initial data load
         document.addEventListener('DOMContentLoaded', function() {
             fetchData();
+            updateCounter();
+            
             // Set up auto-refresh every 5 minutes
             setInterval(fetchData, 5 * 60 * 1000);
+            // Update counter every second
+            setInterval(updateCounter, 1000);
         });
     </script>
 </body>
