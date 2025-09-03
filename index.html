@@ -515,15 +515,21 @@
                     const difficulty = await difficultyResponse.text();
                     const hashrate = await hashrateResponse.text();
                     
-                    document.getElementById('difficulty').textContent = parseFloat(difficulty).toExponential(2);
-                    document.getElementById('hashrate').textContent = `${(parseFloat(hashrate) / 1e6).toFixed(2)} EH/s`;
+                    // Blockchain.info returns hashrate in GH/s, convert to EH/s
+                    const hashrateGHs = parseFloat(hashrate);
+                    const hashrateEHs = hashrateGHs / 1e9; // Convert GH/s to EH/s (1 EH = 1e9 GH)
                     
-                    window.currentHashrate = parseFloat(hashrate);
+                    document.getElementById('difficulty').textContent = parseFloat(difficulty).toExponential(2);
+                    document.getElementById('hashrate').textContent = `${hashrateEHs.toFixed(2)} EH/s`;
+                    
+                    // Store hashrate in GH/s for calculations
+                    window.currentHashrate = hashrateGHs;
                 } catch (error) {
                     console.error('Error fetching blockchain stats:', error);
                     // Use fallback values
                     document.getElementById('difficulty').textContent = '9.27e13';
-                    document.getElementById('hashrate').textContent = '650 EH/s';
+                    document.getElementById('hashrate').textContent = '750.00 EH/s';
+                    window.currentHashrate = 750e9; // 750 EH/s in GH/s
                 }
                 
                 // Fetch latest block height from Mempool.space (more reliable for CORS)
@@ -616,7 +622,8 @@
             
             // Calculate daily BTC earnings per TH/s
             const blocksPerDay = 144; // average
-            const networkHashrate = window.currentHashrate ? window.currentHashrate / 1e6 : 650; // Convert to TH/s or use default
+            // currentHashrate is in GH/s, convert to TH/s (1 TH = 1000 GH)
+            const networkHashrate = window.currentHashrate ? window.currentHashrate / 1000 : 750e6; // Convert GH/s to TH/s or use default 750 EH/s
             const btcPerTHPerDay = (blockReward * blocksPerDay) / networkHashrate;
             
             // Calculate revenue per TH/s per day in USD
