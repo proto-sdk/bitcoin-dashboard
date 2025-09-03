@@ -557,8 +557,14 @@
                     const probability = await probabilityResponse.text();
                     const hashesToWin = await hashesToWinResponse.text();
                     
+                    // Format interval as minutes and seconds
+                    const intervalSeconds = parseFloat(interval);
+                    const minutes = Math.floor(intervalSeconds / 60);
+                    const seconds = Math.floor(intervalSeconds % 60);
+                    const intervalFormatted = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+                    
                     document.getElementById('blockReward').textContent = `${parseFloat(blockReward) / 100000000} BTC`;
-                    document.getElementById('interval').textContent = `${parseFloat(interval).toFixed(0)}s`;
+                    document.getElementById('interval').textContent = intervalFormatted;
                     document.getElementById('probability').textContent = parseFloat(probability).toExponential(2);
                     document.getElementById('hashesToWin').textContent = parseFloat(hashesToWin).toExponential(2);
                     
@@ -573,7 +579,7 @@
                     console.error('Error fetching mining stats:', error);
                     // Use current halving values
                     document.getElementById('blockReward').textContent = '3.125 BTC';
-                    document.getElementById('interval').textContent = '600s';
+                    document.getElementById('interval').textContent = '10m 0s';  // Default 600 seconds = 10 minutes
                     document.getElementById('probability').textContent = '1.08e-23';
                     document.getElementById('hashesToWin').textContent = '9.27e22';
                 }
