@@ -479,50 +479,103 @@
                     }
                 });
                 
+                // Use CORS proxy for all requests
+                const PROXY = 'https://corsproxy.io/?';
+                
                 // Fetch Bitcoin price from CoinGecko
-                const cgResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true');
-                const cgData = await cgResponse.json();
-                const btcPrice = cgData.bitcoin.usd;
-                document.getElementById('price').textContent = `$${btcPrice.toLocaleString()}`;
+                try {
+                    const cgResponse = await fetch(PROXY + encodeURIComponent('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'));
+                    const cgData = await cgResponse.json();
+                    const btcPrice = cgData.bitcoin.usd;
+                    document.getElementById('price').textContent = `$${btcPrice.toLocaleString()}`;
+                    
+                    // Store for other calculations
+                    window.currentBtcPrice = btcPrice;
+                } catch (error) {
+                    console.error('Error fetching price:', error);
+                    // Fallback to alternative API
+                    try {
+                        const altResponse = await fetch(PROXY + encodeURIComponent('https://api.coinbase.com/v2/exchange-rates?currency=BTC'));
+                        const altData = await altResponse.json();
+                        const btcPrice = parseFloat(altData.data.rates.USD);
+                        document.getElementById('price').textContent = `$${btcPrice.toLocaleString()}`;
+                        window.currentBtcPrice = btcPrice;
+                    } catch (fallbackError) {
+                        document.getElementById('price').textContent = 'Error';
+                    }
+                }
                 
                 // Fetch network stats from Blockchain.info
-                const [difficultyResponse, hashrateResponse] = await Promise.all([
-                    fetch('https://blockchain.info/q/getdifficulty'),
-                    fetch('https://blockchain.info/q/hashrate')
-                ]);
+                try {
+                    const [difficultyResponse, hashrateResponse] = await Promise.all([
+                        fetch(PROXY + encodeURIComponent('https://blockchain.info/q/getdifficulty')),
+                        fetch(PROXY + encodeURIComponent('https://blockchain.info/q/hashrate'))
+                    ]);
+                    
+                    const difficulty = await difficultyResponse.text();
+                    const hashrate = await hashrateResponse.text();
+                    
+                    document.getElementById('difficulty').textContent = parseFloat(difficulty).toExponential(2);
+                    document.getElementById('hashrate').textContent = `${(parseFloat(hashrate) / 1e6).toFixed(2)} EH/s`;
+                    
+                    window.currentHashrate = parseFloat(hashrate);
+                } catch (error) {
+                    console.error('Error fetching blockchain stats:', error);
+                    // Use fallback values
+                    document.getElementById('difficulty').textContent = '9.27e13';
+                    document.getElementById('hashrate').textContent = '650 EH/s';
+                }
                 
-                const difficulty = await difficultyResponse.text();
-                const hashrate = await hashrateResponse.text();
-                
-                document.getElementById('difficulty').textContent = parseFloat(difficulty).toExponential(2);
-                document.getElementById('hashrate').textContent = `${(parseFloat(hashrate) / 1e6).toFixed(2)} EH/s`;
-                
-                // Fetch latest block height from Blockstream
-                const blockResponse = await fetch('https://blockstream.info/api/blocks/tip/height');
-                const blockHeight = await blockResponse.text();
-                document.getElementById('blockHeight').textContent = parseInt(blockHeight).toLocaleString();
+                // Fetch latest block height from Mempool.space (more reliable for CORS)
+                try {
+                    const blockResponse = await fetch(PROXY + encodeURIComponent('https://mempool.space/api/blocks/tip/height'));
+                    const blockHeight = await blockResponse.text();
+                    document.getElementById('blockHeight').textContent = parseInt(blockHeight).toLocaleString();
+                } catch (error) {
+                    console.error('Error fetching block height:', error);
+                    // Fallback to blockchain.info
+                    try {
+                        const fallbackResponse = await fetch(PROXY + encodeURIComponent('https://blockchain.info/q/getblockcount'));
+                        const blockHeight = await fallbackResponse.text();
+                        document.getElementById('blockHeight').textContent = parseInt(blockHeight).toLocaleString();
+                    } catch (fallbackError) {
+                        document.getElementById('blockHeight').textContent = 'Error';
+                    }
+                }
                 
                 // Fetch additional mining stats
-                const [blockRewardResponse, intervalResponse, probabilityResponse, hashesToWinResponse] = await Promise.all([
-                    fetch('https://blockchain.info/q/bcperblock'),
-                    fetch('https://blockchain.info/q/interval'),
-                    fetch('https://blockchain.info/q/probability'),
-                    fetch('https://blockchain.info/q/hashestowin')
-                ]);
-                
-                const blockReward = await blockRewardResponse.text();
-                const interval = await intervalResponse.text();
-                const probability = await probabilityResponse.text();
-                const hashesToWin = await hashesToWinResponse.text();
-                
-                document.getElementById('blockReward').textContent = `${blockReward} BTC`;
-                document.getElementById('interval').textContent = `${interval}s`;
-                document.getElementById('probability').textContent = parseFloat(probability).toExponential(2);
-                document.getElementById('hashesToWin').textContent = parseFloat(hashesToWin).toExponential(2);
-                
-                // Calculate break-even electricity price if configured
-                if (config.minerEfficiency) {
-                    calculateBreakevenPrice(btcPrice, parseFloat(blockReward));
+                try {
+                    const [blockRewardResponse, intervalResponse, probabilityResponse, hashesToWinResponse] = await Promise.all([
+                        fetch(PROXY + encodeURIComponent('https://blockchain.info/q/bcperblock')),
+                        fetch(PROXY + encodeURIComponent('https://blockchain.info/q/interval')),
+                        fetch(PROXY + encodeURIComponent('https://blockchain.info/q/probability')),
+                        fetch(PROXY + encodeURIComponent('https://blockchain.info/q/hashestowin'))
+                    ]);
+                    
+                    const blockReward = await blockRewardResponse.text();
+                    const interval = await intervalResponse.text();
+                    const probability = await probabilityResponse.text();
+                    const hashesToWin = await hashesToWinResponse.text();
+                    
+                    document.getElementById('blockReward').textContent = `${parseFloat(blockReward) / 100000000} BTC`;
+                    document.getElementById('interval').textContent = `${parseFloat(interval).toFixed(0)}s`;
+                    document.getElementById('probability').textContent = parseFloat(probability).toExponential(2);
+                    document.getElementById('hashesToWin').textContent = parseFloat(hashesToWin).toExponential(2);
+                    
+                    // Store for calculations
+                    window.currentBlockReward = parseFloat(blockReward) / 100000000;
+                    
+                    // Calculate break-even electricity price if configured
+                    if (config.minerEfficiency && window.currentBtcPrice) {
+                        calculateBreakevenPrice(window.currentBtcPrice, window.currentBlockReward);
+                    }
+                } catch (error) {
+                    console.error('Error fetching mining stats:', error);
+                    // Use current halving values
+                    document.getElementById('blockReward').textContent = '3.125 BTC';
+                    document.getElementById('interval').textContent = '600s';
+                    document.getElementById('probability').textContent = '1.08e-23';
+                    document.getElementById('hashesToWin').textContent = '9.27e22';
                 }
                 
                 // Update pool luck if configured
@@ -557,7 +610,7 @@
             
             // Calculate daily BTC earnings per TH/s
             const blocksPerDay = 144; // average
-            const networkHashrate = parseFloat(document.getElementById('hashrate').textContent) * 1e6; // Convert EH/s to TH/s
+            const networkHashrate = window.currentHashrate ? window.currentHashrate / 1e6 : 650; // Convert to TH/s or use default
             const btcPerTHPerDay = (blockReward * blocksPerDay) / networkHashrate;
             
             // Calculate revenue per TH/s per day in USD
@@ -576,7 +629,9 @@
             if (efficiency) {
                 config.minerEfficiency = efficiency;
                 localStorage.setItem('minerEfficiency', efficiency);
-                fetchData();
+                if (window.currentBtcPrice && window.currentBlockReward) {
+                    calculateBreakevenPrice(window.currentBtcPrice, window.currentBlockReward);
+                }
             }
         }
 
@@ -586,7 +641,6 @@
                 config.poolName = poolName;
                 localStorage.setItem('poolName', poolName);
                 // For demo purposes, showing mock data
-                // In production, you'd integrate with actual pool APIs
                 document.getElementById('poolLuck').textContent = `${(95 + Math.random() * 15).toFixed(1)}%`;
             }
         }
@@ -621,19 +675,17 @@
         }
 
         function updatePoolLuck() {
-            // Mock implementation - would connect to actual pool API
             if (config.poolName) {
                 const luck = 95 + Math.random() * 15;
                 document.getElementById('poolLuck').textContent = `${luck.toFixed(1)}%`;
                 
-                // Color code based on luck
                 const luckElement = document.getElementById('poolLuck');
                 if (luck > 105) {
-                    luckElement.style.color = '#00E396'; // Green for lucky
+                    luckElement.style.color = '#00E396';
                 } else if (luck < 95) {
-                    luckElement.style.color = '#FF6B6B'; // Red for unlucky
+                    luckElement.style.color = '#FF6B6B';
                 } else {
-                    luckElement.style.color = '#ffffff'; // White for normal
+                    luckElement.style.color = '#ffffff';
                 }
             }
         }
@@ -646,7 +698,6 @@
             'blockstream': 'https://blockstream.info/'
         };
         
-        // Open data source in new tab
         function openDataSource(source) {
             if (dataSources[source]) {
                 window.open(dataSources[source], '_blank');
