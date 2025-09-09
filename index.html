@@ -154,8 +154,27 @@
             color: white;
         }
         
+        .footer-left {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
         .last-updated {
             font-size: 14px;
+        }
+        
+        .refresh-info {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .countdown {
+            font-weight: 600;
+            color: #00E396;
         }
         
         .refresh-btn {
@@ -359,8 +378,15 @@
 
     <!-- Footer -->
     <div class="footer">
-        <div class="last-updated">
-            <span id="lastUpdated">Loading...</span>
+        <div class="footer-left">
+            <div class="last-updated">
+                <span id="lastUpdated">Loading...</span>
+            </div>
+            <div class="refresh-info">
+                <span>Auto-refresh every 5 minutes</span>
+                <span>•</span>
+                <span>Next update in <span class="countdown" id="countdown">5:00</span></span>
+            </div>
         </div>
         <button class="refresh-btn" onclick="fetchData()">
             <span>🔄</span>
@@ -377,6 +403,40 @@
             touSchedule: JSON.parse(localStorage.getItem('touSchedule') || '{}'),
             energyCost: localStorage.getItem('energyCost') || null
         };
+
+        // Countdown timer variables
+        let refreshInterval = 5 * 60; // 5 minutes in seconds
+        let countdownTimer;
+        let timeRemaining = refreshInterval;
+
+        function updateCountdown() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            document.getElementById('countdown').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeRemaining > 0) {
+                timeRemaining--;
+            } else {
+                // Reset countdown when it reaches 0
+                timeRemaining = refreshInterval;
+            }
+        }
+
+        function startCountdown() {
+            // Reset countdown
+            timeRemaining = refreshInterval;
+            
+            // Clear existing timer if any
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+            }
+            
+            // Update countdown immediately
+            updateCountdown();
+            
+            // Start countdown timer
+            countdownTimer = setInterval(updateCountdown, 1000);
+        }
 
         async function fetchData() {
             try {
@@ -454,6 +514,9 @@
                     el.classList.remove('error');
                     el.classList.remove('loading');
                 });
+                
+                // Restart countdown after successful data fetch
+                startCountdown();
                 
             } catch (error) {
                 console.error('Error fetching data:', error);
