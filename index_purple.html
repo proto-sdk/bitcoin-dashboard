@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <link rel="icon" type="image/x-icon" href="/bitcoin-dashboard/proto_favicon.ico">
+
     <link rel="icon" type="image/png" href="/bitcoin-dashboard/proto_logo.png">
+
     <link rel="icon" type="image/png" href="/bitcoin-dashboard/proto_favicon_32.png">
     <link rel="shortcut icon" type="image/x-icon" href="/bitcoin-dashboard/proto_favicon.ico">
     <meta charset="UTF-8">
@@ -17,49 +19,14 @@
         }
         
         body {
-            background: #1a1a1a;
-            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
             min-height: 100vh;
-            padding: 20px;
+            padding: 40px 20px;
         }
         
         .container {
             max-width: 1400px;
             margin: 0 auto;
-        }
-        
-        .nav-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .nav-tabs {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .nav-tab {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            padding: 8px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 14px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-        
-        .nav-tab:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: #FF6B35;
-        }
-        
-        .nav-tab.active {
-            background: #FF6B35;
-            border-color: #FF6B35;
         }
         
         .header {
@@ -72,61 +39,74 @@
             font-size: 48px;
             font-weight: 700;
             margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
         
         .header p {
-            color: #999999;
+            color: rgba(255, 255, 255, 0.9);
             font-size: 18px;
-        }
-        
-        .update-counter {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            font-size: 16px;
-            color: #FEB019;
         }
         
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
+            gap: 24px;
+            margin-bottom: 60px;
         }
         
         .stat-card {
-            background: #1a1a1a;
+            background: rgba(255, 255, 255, 0.05);
             border: 2px solid #FF6B35;
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 16px;
+            padding: 28px;
             position: relative;
-            transition: all 0.2s ease;
+            overflow: hidden;
+            transition: all 0.3s ease;
             text-decoration: none;
             display: block;
             cursor: pointer;
         }
         
         .stat-card:hover {
-            transform: translateY(-2px);
-            background: #1a1a1a;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
             border-color: #FF8C42;
+        }
+        
+        .stat-card.configurable {
+            border-color: #FEB019;
+        }
+        
+        .stat-card.configurable:hover {
+            border-color: #FFD23F;
         }
         
         .status-indicator {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 8px;
-            height: 8px;
+            top: 16px;
+            right: 16px;
+            width: 10px;
+            height: 10px;
             background: #4CAF50;
             border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+            }
         }
         
         .stat-icon {
-            font-size: 24px;
-            margin-bottom: 12px;
+            font-size: 32px;
+            margin-bottom: 16px;
             display: inline-block;
         }
         
@@ -164,32 +144,33 @@
         .time-lime { color: #32CD32; }
         
         .footer {
-            background: #1a1a1a;
-            border: 2px solid #FF6B35;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            color: #666666;
-            font-size: 14px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #ffffff;
         }
         
         .last-updated {
-            margin-bottom: 10px;
+            font-size: 14px;
         }
         
         .refresh-btn {
-            background: none;
+            background: rgba(255, 255, 255, 0.2);
             border: none;
-            color: #0077FF;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            padding: 5px 10px;
             font-size: 14px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
+            transition: background 0.3s ease;
         }
         
         .refresh-btn:hover {
-            background: rgba(0, 119, 255, 0.1);
+            background: rgba(255, 255, 255, 0.3);
         }
         
         .loading {
@@ -237,23 +218,6 @@
             opacity: 1;
         }
         
-        .data-sources {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 12px;
-            color: #666666;
-        }
-        
-        .data-sources a {
-            color: #0077FF;
-            text-decoration: none;
-            margin: 0 5px;
-        }
-        
-        .data-sources a:hover {
-            text-decoration: underline;
-        }
-        
         @media (max-width: 768px) {
             .stats-grid {
                 grid-template-columns: 1fr;
@@ -261,41 +225,26 @@
             }
             
             .stat-card {
-                padding: 20px;
+                padding: 24px;
             }
             
-            .nav-tabs {
-                flex-wrap: wrap;
+            .footer {
+                flex-direction: column;
+                gap: 16px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Navigation Header -->
-        <div class="nav-header">
-            <div></div> <!-- Empty div for spacing -->
-            <div class="nav-tabs">
-                <a href="#" class="nav-tab active">Dashboard</a>
-                <a href="https://github.com/proto-sdk/bitcoin-dashboard" target="_blank" class="nav-tab">GitHub</a>
-                <a href="https://github.com/proto-sdk/bitcoin-dashboard#-setting-up-local-energy-cost-tracking" target="_blank" class="nav-tab">Setup</a>
-                <button class="nav-tab" onclick="fetchData()">Refresh Data</button>
-            </div>
-        </div>
-        
         <div class="header">
             <h1>⚡ Bitcoin Network Statistics</h1>
             <p>Real-time blockchain metrics and mining profitability data</p>
         </div>
         
-        <!-- Real-time Update Counter -->
-        <div class="update-counter" id="update-counter">
-            Updated 0 seconds ago
-        </div>
-        
         <div class="stats-grid">
             <!-- Energy Cost Card -->
-            <a href="https://github.com/proto-sdk/bitcoin-dashboard#-setting-up-local-energy-cost-tracking" target="_blank" class="stat-card">
+            <a href="https://github.com/proto-sdk/bitcoin-dashboard#-setting-up-local-energy-cost-tracking" target="_blank" class="stat-card configurable">
                 <div class="status-indicator"></div>
                 <span class="stat-icon energy-yellow">🔧</span>
                 <div class="stat-value" id="energyCost">Setup Required</div>
@@ -350,7 +299,7 @@
             </a>
             
             <!-- Break-even Electricity Price -->
-            <div class="stat-card" onclick="calculateBreakeven()">
+            <div class="stat-card configurable" onclick="calculateBreakeven()">
                 <div class="status-indicator"></div>
                 <span class="stat-icon breakeven-pink">💡</span>
                 <div class="stat-value" id="breakevenPrice">Setup Required</div>
@@ -360,7 +309,7 @@
             </div>
             
             <!-- Pool Luck/Performance -->
-            <div class="stat-card" onclick="configurePool()">
+            <div class="stat-card configurable" onclick="configurePool()">
                 <div class="status-indicator"></div>
                 <span class="stat-icon pool-cyan">🎰</span>
                 <div class="stat-value" id="poolLuck">Setup Required</div>
@@ -370,7 +319,7 @@
             </div>
             
             <!-- Time-of-Use Electricity Rates -->
-            <div class="stat-card" onclick="configureTOU()">
+            <div class="stat-card configurable" onclick="configureTOU()">
                 <div class="status-indicator"></div>
                 <span class="stat-icon time-lime">⏰</span>
                 <div class="stat-value" id="touRate">Setup Required</div>
@@ -413,12 +362,10 @@
         <div class="last-updated">
             <span id="lastUpdated">Loading...</span>
         </div>
-        <div class="data-sources">
-            <strong>Data sources:</strong>
-            <a href="https://coingecko.com/" target="_blank">CoinGecko</a> |
-            <a href="https://mempool.space/" target="_blank">Mempool.space</a> |
-            <a href="https://blockchain.info/" target="_blank">Blockchain.info</a>
-        </div>
+        <button class="refresh-btn" onclick="fetchData()">
+            <span>🔄</span>
+            <span>Refresh</span>
+        </button>
     </div>
 
     <script>
@@ -430,45 +377,9 @@
             touSchedule: JSON.parse(localStorage.getItem('touSchedule') || '{}'),
             energyCost: localStorage.getItem('energyCost') || null
         };
-        
-        // Update counter functionality
-        let startTime = Date.now();
-        
-        function updateCounter() {
-            const elapsed = Date.now() - startTime;
-            const seconds = Math.floor(elapsed / 1000);
-            const minutes = Math.floor(seconds / 60);
-            const hours = Math.floor(minutes / 60);
-            const days = Math.floor(hours / 24);
-            
-            let counterText = '';
-            if (days > 0) {
-                counterText = `Updated ${days} day${days > 1 ? 's' : ''} ago`;
-            } else if (hours > 0) {
-                counterText = `Updated ${hours} hour${hours > 1 ? 's' : ''} ago`;
-            } else if (minutes > 0) {
-                counterText = `Updated ${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-            } else {
-                counterText = `Updated ${seconds} second${seconds > 1 ? 's' : ''} ago`;
-            }
-            
-            document.getElementById('update-counter').textContent = counterText;
-            
-            // Real-time browser tab update
-            const priceElem = document.getElementById('price');
-            let priceText = '';
-            if (priceElem && priceElem.textContent && !priceElem.textContent.includes('Loading')) {
-                priceText = '₿ ' + priceElem.textContent;
-            }
-            document.title = `${priceText ? priceText + ' - ' : ''}${counterText} | Bitcoin Network Stats`;
-        }
 
         async function fetchData() {
             try {
-                // Reset the counter
-                startTime = Date.now();
-                updateCounter();
-                
                 // Reset all values to loading state
                 document.querySelectorAll('.stat-value').forEach(el => {
                     if (!['energyCost', 'breakevenPrice', 'poolLuck', 'touRate'].includes(el.id)) {
@@ -477,149 +388,54 @@
                     }
                 });
                 
-                // Use APIs that support CORS directly or have public endpoints
+                // Fetch Bitcoin price from CoinGecko
+                const cgResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true');
+                const cgData = await cgResponse.json();
+                const btcPrice = cgData.bitcoin.usd;
+                document.getElementById('price').textContent = `$${btcPrice.toLocaleString()}`;
                 
-                // Fetch Bitcoin price from CoinGecko (CORS-enabled)
-                try {
-                    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-                    const data = await response.json();
-                    const btcPrice = data.bitcoin.usd;
-                    document.getElementById('price').textContent = `$${btcPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-                    window.currentBtcPrice = btcPrice;
-                } catch (error) {
-                    console.error('Error fetching price from CoinGecko:', error);
-                    // Try backup API - Kraken
-                    try {
-                        const krakenResponse = await fetch('https://api.kraken.com/0/public/Ticker?pair=XBTUSD');
-                        const krakenData = await krakenResponse.json();
-                        const btcPrice = parseFloat(krakenData.result.XXBTZUSD.c[0]);
-                        document.getElementById('price').textContent = `$${btcPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-                        window.currentBtcPrice = btcPrice;
-                    } catch (krakenError) {
-                        console.error('Error fetching price from Kraken:', krakenError);
-                        document.getElementById('price').textContent = '$110,000.00';
-                        window.currentBtcPrice = 110000;
-                    }
-                }
+                // Fetch network stats from Blockchain.info
+                const [difficultyResponse, hashrateResponse] = await Promise.all([
+                    fetch('https://blockchain.info/q/getdifficulty'),
+                    fetch('https://blockchain.info/q/hashrate')
+                ]);
                 
-                // Fetch data from Mempool.space API (CORS-enabled)
-                try {
-                    // Get latest block for height and stats
-                    const blockResponse = await fetch('https://mempool.space/api/blocks/tip/height');
-                    const blockHeight = await blockResponse.text();
-                    document.getElementById('blockHeight').textContent = parseInt(blockHeight).toLocaleString();
-                    
-                    // Get mining difficulty
-                    const difficultyResponse = await fetch('https://mempool.space/api/v1/mining/difficulty-adjustment');
-                    const difficultyData = await difficultyResponse.json();
-                    const difficultyInT = difficultyData.difficulty / 1e12;
-                    document.getElementById('difficulty').textContent = difficultyInT.toFixed(2) + 'T';
-                    window.currentDifficulty = difficultyData.difficulty;
-                    
-                    // Get hashrate from mining stats
-                    const hashrateResponse = await fetch('https://mempool.space/api/v1/mining/hashrate/3d');
-                    const hashrateData = await hashrateResponse.json();
-                    if (hashrateData.hashrates && hashrateData.hashrates.length > 0) {
-                        const latestHashrate = hashrateData.hashrates[hashrateData.hashrates.length - 1].avgHashrate;
-                        const hashrateEHs = latestHashrate / 1e18; // Convert H/s to EH/s
-                        document.getElementById('hashrate').textContent = `${hashrateEHs.toFixed(2)} EH/s`;
-                        window.currentHashrate = latestHashrate;
-                    } else {
-                        // Fallback hashrate
-                        document.getElementById('hashrate').textContent = '750.00 EH/s';
-                        window.currentHashrate = 750e18;
-                    }
-                    
-                    // Get recent blocks to calculate actual interval
-                    try {
-                        const blocksResponse = await fetch('https://mempool.space/api/v1/blocks/0');
-                        const blocks = await blocksResponse.json();
-                        if (blocks && blocks.length >= 2) {
-                            // Calculate average interval from last 10 blocks
-                            let totalInterval = 0;
-                            let count = Math.min(blocks.length - 1, 10);
-                            for (let i = 0; i < count; i++) {
-                                totalInterval += blocks[i].timestamp - blocks[i + 1].timestamp;
-                            }
-                            const avgInterval = totalInterval / count;
-                            const minutes = Math.floor(avgInterval / 60);
-                            const seconds = Math.floor(avgInterval % 60);
-                            document.getElementById('interval').textContent = `${minutes}m ${seconds}s`;
-                            window.currentInterval = avgInterval;
-                        } else {
-                            // Fallback - try to get from blockchain.info through CORS proxy
-                            try {
-                                const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://blockchain.info/q/interval');
-                                const intervalResponse = await fetch(proxyUrl);
-                                const intervalSeconds = parseFloat(await intervalResponse.text());
-                                const minutes = Math.floor(intervalSeconds / 60);
-                                const seconds = Math.floor(intervalSeconds % 60);
-                                document.getElementById('interval').textContent = `${minutes}m ${seconds}s`;
-                                window.currentInterval = intervalSeconds;
-                            } catch (proxyError) {
-                                // Final fallback
-                                document.getElementById('interval').textContent = '8m 41s';
-                                window.currentInterval = 521;
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Error fetching blocks for interval:', error);
-                        // Try blockchain.info through CORS proxy
-                        try {
-                            const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://blockchain.info/q/interval');
-                            const intervalResponse = await fetch(proxyUrl);
-                            const intervalSeconds = parseFloat(await intervalResponse.text());
-                            const minutes = Math.floor(intervalSeconds / 60);
-                            const seconds = Math.floor(intervalSeconds % 60);
-                            document.getElementById('interval').textContent = `${minutes}m ${seconds}s`;
-                            window.currentInterval = intervalSeconds;
-                        } catch (proxyError) {
-                            console.error('Error fetching interval from proxy:', proxyError);
-                            document.getElementById('interval').textContent = '8m 41s';
-                            window.currentInterval = 521;
-                        }
-                    }
-                    
-                    // Calculate probability and hashes to win based on actual difficulty
-                    if (window.currentDifficulty) {
-                        // Probability = 1 / (difficulty * 2^32)
-                        const probability = 1 / (window.currentDifficulty * Math.pow(2, 32));
-                        document.getElementById('probability').textContent = probability.toExponential(2);
-                        
-                        // Hashes to win = difficulty * 2^32
-                        const hashesToWin = window.currentDifficulty * Math.pow(2, 32);
-                        document.getElementById('hashesToWin').textContent = hashesToWin.toExponential(2);
-                    }
-                    
-                } catch (error) {
-                    console.error('Error fetching blockchain stats:', error);
-                    // Use fallback values
-                    document.getElementById('blockHeight').textContent = '875,000';
-                    document.getElementById('difficulty').textContent = '95.67T';
-                    document.getElementById('hashrate').textContent = '750.00 EH/s';
-                    document.getElementById('interval').textContent = '10m 0s';
-                    document.getElementById('probability').textContent = '1.08e-23';
-                    document.getElementById('hashesToWin').textContent = '9.27e22';
-                    window.currentHashrate = 750e18;
-                    window.currentDifficulty = 95.67e12;
-                }
+                const difficulty = await difficultyResponse.text();
+                const hashrate = await hashrateResponse.text();
                 
-                // Set block reward (current era is 3.125 BTC after the 2024 halving)
-                document.getElementById('blockReward').textContent = '3.125 BTC';
-                window.currentBlockReward = 3.125;
+                document.getElementById('difficulty').textContent = parseFloat(difficulty).toExponential(2);
+                document.getElementById('hashrate').textContent = `${(parseFloat(hashrate) / 1e6).toFixed(2)} EH/s`;
                 
-                // Load energy cost if configured
-                if (config.energyCost) {
-                    document.getElementById('energyCost').textContent = `$${config.energyCost}/kWh`;
-                }
+                // Fetch latest block height from Blockstream
+                const blockResponse = await fetch('https://blockstream.info/api/blocks/tip/height');
+                const blockHeight = await blockResponse.text();
+                document.getElementById('blockHeight').textContent = parseInt(blockHeight).toLocaleString();
+                
+                // Fetch additional mining stats
+                const [blockRewardResponse, intervalResponse, probabilityResponse, hashesToWinResponse] = await Promise.all([
+                    fetch('https://blockchain.info/q/bcperblock'),
+                    fetch('https://blockchain.info/q/interval'),
+                    fetch('https://blockchain.info/q/probability'),
+                    fetch('https://blockchain.info/q/hashestowin')
+                ]);
+                
+                const blockReward = await blockRewardResponse.text();
+                const interval = await intervalResponse.text();
+                const probability = await probabilityResponse.text();
+                const hashesToWin = await hashesToWinResponse.text();
+                
+                document.getElementById('blockReward').textContent = `${blockReward} BTC`;
+                document.getElementById('interval').textContent = `${interval}s`;
+                document.getElementById('probability').textContent = parseFloat(probability).toExponential(2);
+                document.getElementById('hashesToWin').textContent = parseFloat(hashesToWin).toExponential(2);
                 
                 // Calculate break-even electricity price if configured
-                if (config.minerEfficiency && window.currentBtcPrice) {
-                    calculateBreakevenPrice(window.currentBtcPrice, window.currentBlockReward);
+                if (config.minerEfficiency) {
+                    calculateBreakevenPrice(btcPrice, parseFloat(blockReward));
                 }
                 
                 // Update pool luck if configured
-                if (config.poolName) {
+                if (config.poolApiUrl) {
                     updatePoolLuck();
                 }
                 
@@ -633,7 +449,7 @@
                 document.getElementById('lastUpdated').textContent = 
                     `Last updated: ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`;
                 
-                // Remove loading states
+                // Reset any error states
                 document.querySelectorAll('.stat-value').forEach(el => {
                     el.classList.remove('error');
                     el.classList.remove('loading');
@@ -650,9 +466,8 @@
             
             // Calculate daily BTC earnings per TH/s
             const blocksPerDay = 144; // average
-            // currentHashrate is in H/s, convert to TH/s (1 TH = 1e12 H)
-            const networkHashrateTH = window.currentHashrate ? window.currentHashrate / 1e12 : 750e6; // Convert H/s to TH/s or use default 750 EH/s
-            const btcPerTHPerDay = (blockReward * blocksPerDay) / networkHashrateTH;
+            const networkHashrate = parseFloat(document.getElementById('hashrate').textContent) * 1e6; // Convert EH/s to TH/s
+            const btcPerTHPerDay = (blockReward * blocksPerDay) / networkHashrate;
             
             // Calculate revenue per TH/s per day in USD
             const revenuePerTHPerDay = btcPerTHPerDay * btcPrice;
@@ -670,9 +485,7 @@
             if (efficiency) {
                 config.minerEfficiency = efficiency;
                 localStorage.setItem('minerEfficiency', efficiency);
-                if (window.currentBtcPrice && window.currentBlockReward) {
-                    calculateBreakevenPrice(window.currentBtcPrice, window.currentBlockReward);
-                }
+                fetchData();
             }
         }
 
@@ -682,6 +495,7 @@
                 config.poolName = poolName;
                 localStorage.setItem('poolName', poolName);
                 // For demo purposes, showing mock data
+                // In production, you'd integrate with actual pool APIs
                 document.getElementById('poolLuck').textContent = `${(95 + Math.random() * 15).toFixed(1)}%`;
             }
         }
@@ -716,17 +530,19 @@
         }
 
         function updatePoolLuck() {
+            // Mock implementation - would connect to actual pool API
             if (config.poolName) {
                 const luck = 95 + Math.random() * 15;
                 document.getElementById('poolLuck').textContent = `${luck.toFixed(1)}%`;
                 
+                // Color code based on luck
                 const luckElement = document.getElementById('poolLuck');
                 if (luck > 105) {
-                    luckElement.style.color = '#00E396';
+                    luckElement.style.color = '#00E396'; // Green for lucky
                 } else if (luck < 95) {
-                    luckElement.style.color = '#FF6B6B';
+                    luckElement.style.color = '#FF6B6B'; // Red for unlucky
                 } else {
-                    luckElement.style.color = '#ffffff';
+                    luckElement.style.color = '#ffffff'; // White for normal
                 }
             }
         }
@@ -739,45 +555,25 @@
             'blockstream': 'https://blockstream.info/'
         };
         
+        // Open data source in new tab
         function openDataSource(source) {
             if (dataSources[source]) {
                 window.open(dataSources[source], '_blank');
             }
         }
 
-        // Configure energy cost
-        function configureEnergyCost() {
-            const cost = prompt('Enter your local energy cost ($/kWh):', config.energyCost || '0.10');
-            if (cost) {
-                config.energyCost = cost;
-                localStorage.setItem('energyCost', cost);
-                document.getElementById('energyCost').textContent = `$${cost}/kWh`;
-                // Recalculate breakeven if miner efficiency is set
-                if (config.minerEfficiency && window.currentBtcPrice) {
-                    calculateBreakevenPrice(window.currentBtcPrice, window.currentBlockReward);
-                }
-            }
-        }
-
         // Initial data load
         document.addEventListener('DOMContentLoaded', function() {
-            // Set up click handler for energy cost card
-            const energyCostCard = document.querySelector('[id="energyCost"]').closest('.stat-card');
-            if (energyCostCard) {
-                energyCostCard.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    configureEnergyCost();
-                });
-            }
-            
             fetchData();
-            updateCounter();
-            
             // Set up auto-refresh every 5 minutes
             setInterval(fetchData, 5 * 60 * 1000);
-            // Update counter every second
-            setInterval(updateCounter, 1000);
         });
     </script>
+        <div class="data-sources" style="font-size:13px; color:#999; margin-top:8px; text-align:center;">
+            <strong>Data sources:</strong>
+            <a href="https://coingecko.com/" target="_blank">CoinGecko</a> |
+            <a href="https://mempool.space/" target="_blank">Mempool.space</a> |
+            <a href="https://blockchain.info/" target="_blank">Blockchain.info</a>
+        </div>
 </body>
 </html>

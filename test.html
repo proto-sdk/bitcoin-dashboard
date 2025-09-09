@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bitcoin Dashboard Test</title>
+</head>
+<body>
+    <h1>Bitcoin Dashboard API Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testAPIs() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h2>Testing APIs...</h2>';
+            
+            // Test CoinGecko API
+            try {
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+                const data = await response.json();
+                results.innerHTML += `<p>✅ CoinGecko Bitcoin Price: $${data.bitcoin.usd.toLocaleString()}</p>`;
+            } catch (error) {
+                results.innerHTML += `<p>❌ CoinGecko Error: ${error.message}</p>`;
+            }
+            
+            // Test Mempool.space API
+            try {
+                const response = await fetch('https://mempool.space/api/blocks/tip/height');
+                const height = await response.text();
+                results.innerHTML += `<p>✅ Mempool Block Height: ${parseInt(height).toLocaleString()}</p>`;
+            } catch (error) {
+                results.innerHTML += `<p>❌ Mempool Error: ${error.message}</p>`;
+            }
+            
+            // Test Mempool blocks for interval
+            try {
+                const blocksResponse = await fetch('https://mempool.space/api/v1/blocks/0');
+                const blocks = await blocksResponse.json();
+                if (blocks && blocks.length >= 2) {
+                    let totalInterval = 0;
+                    let count = Math.min(blocks.length - 1, 10);
+                    for (let i = 0; i < count; i++) {
+                        totalInterval += blocks[i].timestamp - blocks[i + 1].timestamp;
+                    }
+                    const avgInterval = totalInterval / count;
+                    const minutes = Math.floor(avgInterval / 60);
+                    const seconds = Math.floor(avgInterval % 60);
+                    results.innerHTML += `<p>✅ Average Block Interval: ${minutes}m ${seconds}s</p>`;
+                }
+            } catch (error) {
+                results.innerHTML += `<p>❌ Block Interval Error: ${error.message}</p>`;
+            }
+            
+            // Test blockchain.info through CORS proxy
+            try {
+                const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://blockchain.info/q/interval');
+                const response = await fetch(proxyUrl);
+                const intervalSeconds = parseFloat(await response.text());
+                const minutes = Math.floor(intervalSeconds / 60);
+                const seconds = Math.floor(intervalSeconds % 60);
+                results.innerHTML += `<p>✅ Blockchain.info Interval (via proxy): ${minutes}m ${seconds}s</p>`;
+            } catch (error) {
+                results.innerHTML += `<p>❌ Blockchain.info Proxy Error: ${error.message}</p>`;
+            }
+            
+            results.innerHTML += '<h3>Test Complete!</h3>';
+        }
+        
+        // Run test on page load
+        testAPIs();
+    </script>
+</body>
+</html>

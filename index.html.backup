@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/x-icon" href="/bitcoin-dashboard/proto_favicon.ico">
+
+    <link rel="icon" type="image/png" href="/bitcoin-dashboard/proto_logo.png">
+
+    <link rel="icon" type="image/png" href="/bitcoin-dashboard/proto_favicon_32.png">
+    <link rel="shortcut icon" type="image/x-icon" href="/bitcoin-dashboard/proto_favicon.ico">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Network Statistics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        /* Navigation */
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: #0a0a0a;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #ffffff;
+        }
+        
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: #FF6B35;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: #999999;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .nav-link:hover {
+            color: #ffffff;
+        }
+        
+        .nav-button {
+            background: #FF6B35;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-button:hover {
+            background: #FF8A5B;
+            transform: translateY(-1px);
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 80px 40px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 400;
+            letter-spacing: -2px;
+            margin-bottom: 16px;
+            line-height: 1.1;
+        }
+        
+        .hero .subtitle {
+            font-size: 20px;
+            color: #999999;
+            font-weight: 400;
+            margin-bottom: 40px;
+        }
+        
+        /* Update Badge */
+        .update-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #1a1a1a;
+            padding: 8px 16px;
+            border-radius: 24px;
+            font-size: 13px;
+            color: #999999;
+            margin-bottom: 40px;
+        }
+        
+        .update-badge .badge-icon {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .refresh-info {
+            font-size: 14px;
+            color: #888;
+            margin-top: 16px;
+            line-height: 1.4;
+        }
+        
+        /* Main Content */
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px 80px;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+        
+        .stat-card {
+            background: #1a1a1a;
+            border: 2px solid #FF6B35;
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: #ffffff;
+            display: block;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.15);
+        }
+        
+        .stat-card:hover {
+            border-color: #FF8A5B;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(255, 107, 53, 0.25);
+        }
+        
+        .stat-card > a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 16px;
+            display: block;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #999999;
+            font-weight: 500;
+        }
+        
+        /* Status Indicator */
+        .status-indicator {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        /* Colors */
+        .bitcoin-orange { color: #FF6B35; }
+        .hash-blue { color: #3b82f6; }
+        .difficulty-purple { color: #8b5cf6; }
+        .price-green { color: #10b981; }
+        .blocks-red { color: #ef4444; }
+        .miners-teal { color: #06b6d4; }
+        .energy-yellow { color: #f59e0b; }
+        
+        /* Loading and Error States */
+        .loading {
+            color: #999999;
+            font-style: italic;
+        }
+        
+        .error {
+            color: #ef4444;
+        }
+        
+        /* Footer */
+        .footer {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+            border-top: 1px solid #1a1a1a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .last-updated {
+            font-size: 14px;
+            color: #999999;
+        }
+        
+        .refresh-btn {
+            background: #1a1a1a;
+            color: #ffffff;
+            border: 1px solid #333333;
+            padding: 10px 20px;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .refresh-btn:hover {
+            background: #FF6B35;
+            border-color: #FF6B35;
+        }
+        
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav {
+                padding: 16px 20px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .hero {
+                padding: 40px 20px;
+            }
+            
+            .hero h1 {
+                font-size: 36px;
+            }
+            
+            .hero .subtitle {
+                font-size: 18px;
+            }
+            
+            .dashboard {
+                padding: 0 20px 40px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .stat-card {
+                padding: 24px;
+            }
+            
+            .footer {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px;
+            }
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 12px;
+            background: #000000;
+            color: #ffffff;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            margin-bottom: 8px;
+            z-index: 1000;
+            max-width: 200px;
+            white-space: normal;
+            text-align: center;
+        }
+        
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 4px;
+            border-style: solid;
+            border-color: #000000 transparent transparent transparent;
+        }
+        
+        .stat-card:hover .tooltip {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="/" class="nav-logo">
+            <div class="logo-icon">₿</div>
+            <span class="logo-text">Bitcoin Stats</span>
+        </a>
+        <div class="nav-links">
+            <a href="#" class="nav-link">Dashboard</a>
+            <a href="https://github.com/proto-sdk/bitcoin-dashboard" class="nav-link" target="_blank">GitHub</a>
+            <a href="https://github.com/proto-sdk/bitcoin-dashboard#-setting-up-local-energy-cost-tracking" class="nav-link" target="_blank">Setup</a>
+            <button class="nav-button" onclick="fetchData()">Refresh Data</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>The pulse of Bitcoin.</h1>
+        <p class="subtitle">Real-time network statistics and mining metrics</p>
+        <div class="update-badge">
+            <span class="badge-icon"></span>
+            <span id="update-counter">Live data</span>
+        </div>
+        <div class="refresh-info">Data refreshes automatically every 5 minutes. Click the refresh button below for instant updates.</div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard">
+        <div class="stats-grid">
+            <!-- Energy Cost Card -->
+            <a href="https://github.com/proto-sdk/bitcoin-dashboard#-setting-up-local-energy-cost-tracking" target="_blank" class="stat-card">
+                <div class="status-indicator"></div>
+                <span class="stat-icon energy-yellow">🔧</span>
+                <div class="stat-value" id="energyCost">Setup Required</div>
+                <div class="stat-label">Local Energy Cost (kWh)</div>
+                <div class="tooltip">Configure your local energy cost</div>
+            </a>
+
+            <!-- Bitcoin Price -->
+            <div class="stat-card" onclick="openDataSource('coingecko')">
+                <div class="status-indicator"></div>
+                <span class="stat-icon bitcoin-orange">₿</span>
+                <div class="stat-value" id="price">Loading...</div>
+                <div class="stat-label">Bitcoin Price (USD)</div>
+                <div class="tooltip">Current market price</div>
+            </div>
+            
+            <!-- Network Hash Rate -->
+            <a href="https://www.blockchain.com/explorer/charts/hash-rate" target="_blank" class="stat-card">
+                <div class="status-indicator"></div>
+                <span class="stat-icon hash-blue">⚡</span>
+                <div class="stat-value" id="hashrate">Loading...</div>
+                <div class="stat-label">Network Hash Rate</div>
+                <div class="tooltip">Total computational power</div>
+            </a>
+            
+            <!-- Mining Difficulty -->
+            <div class="stat-card" onclick="openDataSource('blockchain-difficulty')">
+                <div class="status-indicator"></div>
+                <span class="stat-icon difficulty-purple">🎯</span>
+                <div class="stat-value" id="difficulty">Loading...</div>
+                <div class="stat-label">Mining Difficulty</div>
+                <div class="tooltip">Adjusts every 2,016 blocks</div>
+            </div>
+            
+            <!-- Block Height -->
+            <div class="stat-card" onclick="openDataSource('blockstream')">
+                <div class="status-indicator"></div>
+                <span class="stat-icon blocks-red">🧱</span>
+                <div class="stat-value" id="blockHeight">Loading...</div>
+                <div class="stat-label">Current Block Height</div>
+                <div class="tooltip">Latest block number</div>
+            </div>
+            
+            <!-- Block Reward -->
+            <a href="https://blockchain.info/q/bcperblock" target="_blank" class="stat-card">
+                <div class="status-indicator"></div>
+                <span class="stat-icon miners-teal">🏆</span>
+                <div class="stat-value" id="blockReward">Loading...</div>
+                <div class="stat-label">Block Reward</div>
+                <div class="tooltip">Current block reward in BTC</div>
+            </a>
+            
+            <!-- Interval -->
+            <a href="https://blockchain.info/q/interval" target="_blank" class="stat-card">
+                <div class="status-indicator"></div>
+                <span class="stat-icon price-green">⏲️</span>
+                <div class="stat-value" id="interval">Loading...</div>
+                <div class="stat-label">Interval</div>
+                <div class="tooltip">Average time between blocks in seconds</div>
+            </a>
+            
+            <!-- Probability -->
+            <a href="https://blockchain.info/q/probability" target="_blank" class="stat-card">
+                <div class="status-indicator"></div>
+                <span class="stat-icon hash-blue">🎲</span>
+                <div class="stat-value" id="probability">Loading...</div>
+                <div class="stat-label">Probability</div>
+                <div class="tooltip">Probability of finding a valid block (per hash attempt)</div>
+            </a>
+            
+            <!-- Hashes to Win -->
+            <a href="https://blockchain.info/q/hashestowin" target="_blank" class="stat-card">
+                <div class="status-indicator"></div>
+                <span class="stat-icon blocks-red">🔢</span>
+                <div class="stat-value" id="hashesToWin">Loading...</div>
+                <div class="stat-label">Hashes to Win</div>
+                <div class="tooltip">Average number of hashes needed to find a block</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="last-updated">
+            <span id="lastUpdated">Loading...</span>
+        </div>
+        <button class="refresh-btn" onclick="fetchData()">
+            <span>🔄</span>
+            <span>Refresh</span>
+        </button>
+    </div>
+
+    <script>
+        // Format large numbers with appropriate suffixes
+        function formatNumber(num) {
+            if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+            return num.toLocaleString();
+        }
+
+        // Format hash rate
+        function formatHashRate(hashrate) {
+            const ehPerSecond = hashrate / 1e18;
+            return ehPerSecond.toFixed(2) + ' EH/s';
+        }
+
+        // Format difficulty
+        function formatDifficulty(difficulty) {
+            const trillions = difficulty / 1e12;
+            return trillions.toFixed(2) + 'T';
+        }
+
+        // Calculate network security value (daily mining revenue)
+        function calculateSecurityValue(bitcoinPrice) {
+            const dailyBlockReward = 3.125; // Current BTC per block (post-2024 halving)
+            const blocksPerDay = 144; // Approximately 144 blocks per day (10 min target)
+            const dailyBTC = dailyBlockReward * blocksPerDay;
+            const dailySecurityValue = dailyBTC * bitcoinPrice;
+            
+            return '$' + formatNumber(dailySecurityValue) + '/day';
+        }
+
+        // Calculate hash rate efficiency (hash rate per billion dollars of market cap)
+        function calculateHashRateEfficiency(hashrate, marketCap) {
+            const hashRatePerBillion = (hashrate / 1e18) / (marketCap / 1e9); // EH/s per $B
+            return hashRatePerBillion.toFixed(1) + ' EH/s/$B';
+        }
+
+        // Calculate actual block time (time since last block)
+        function calculateBlockTime(blockHeight) {
+            // Since we can't reliably get the timestamp, we'll show the block height instead
+            // and indicate it's the latest block
+            if (!blockHeight || isNaN(blockHeight)) {
+                return 'Unknown';
+            }
+            
+            return `Block #${parseInt(blockHeight).toLocaleString()}`;
+        }
+
+        // Calculate network security metric (annualized miner revenue)
+        function calculateNetworkSecurity(bitcoinPrice) {
+            const dailyBlockReward = 3.125; // Current BTC per block (post-2024 halving)
+            const blocksPerDay = 144; // Approximately 144 blocks per day (10 min target)
+            const dailyRevenue = dailyBlockReward * blocksPerDay * bitcoinPrice;
+            const annualizedSecurity = dailyRevenue * 365; // Annualized miner revenue
+            
+            return '$' + formatNumber(annualizedSecurity) + '/year';
+        }
+
+        // Fetch data from multiple reliable APIs
+        async function fetchData() {
+            try {
+                // Update loading state
+                document.getElementById('lastUpdated').textContent = 'Updating...';
+                
+                // Fetch Bitcoin price and market data from CoinGecko
+                const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true');
+                const priceData = await priceResponse.json();
+                
+                // Fetch current block height with fallback APIs
+                let blockHeight = null;
+                let blockTimestamp = null;
+                
+                // Try multiple APIs for block height
+                const blockHeightAPIs = [
+                    { url: 'https://mempool.space/api/blocks/tip/height', type: 'text' },
+                    { url: 'https://blockchain.info/q/getblockcount', type: 'text' },
+                    { url: 'https://blockstream.info/api/blocks/tip/height', type: 'text' }
+                ];
+                
+                for (const api of blockHeightAPIs) {
+                    try {
+                        const response = await fetch(api.url);
+                        if (response.ok) {
+                            blockHeight = await response.text();
+                            console.log(`Block height fetched from: ${api.url}`);
+                            break;
+                        }
+                    } catch (error) {
+                        console.warn(`Failed to fetch from ${api.url}:`, error);
+                    }
+                }
+                
+                // Try to get latest block timestamp from mempool.space
+                if (blockHeight) {
+                    try {
+                        const latestBlockResponse = await fetch('https://mempool.space/api/blocks/tip');
+                        if (latestBlockResponse.ok) {
+                            const latestBlockData = await latestBlockResponse.json();
+                            if (Array.isArray(latestBlockData) && latestBlockData.length > 0) {
+                                blockTimestamp = latestBlockData[0].timestamp;
+                            }
+                        }
+                    } catch (blockError) {
+                        console.warn('Failed to fetch block timestamp:', blockError);
+                    }
+                }
+                
+                // Fetch network stats from Blockchain.info
+                const networkResponse = await fetch('https://blockchain.info/q/getdifficulty');
+                const difficulty = await networkResponse.text();
+                
+                // Calculate approximate hash rate from difficulty
+                // Hash rate = difficulty * 2^32 / 600 (target block time in seconds)
+                const hashrate = parseFloat(difficulty) * Math.pow(2, 32) / 600;
+                
+                // Update DOM elements with fetched data
+                document.getElementById('price').textContent = '$' + parseFloat(priceData.bitcoin.usd).toLocaleString();
+                
+                // Update block height only if we successfully fetched it
+                if (blockHeight) {
+                    document.getElementById('blockHeight').textContent = parseInt(blockHeight).toLocaleString();
+                } else {
+                    document.getElementById('blockHeight').textContent = 'N/A';
+                    document.getElementById('blockHeight').classList.add('error');
+                }
+                document.getElementById('difficulty').textContent = formatDifficulty(parseFloat(difficulty));
+                document.getElementById('hashrate').textContent = formatHashRate(hashrate);
+                // Block reward
+                try {
+                  const blockRewardResp = await fetch('https://blockchain.info/q/bcperblock');
+                  const blockReward = await blockRewardResp.text();
+                  document.getElementById('blockReward').textContent = parseFloat(blockReward).toFixed(4) + ' BTC';
+                } catch (e) {
+                  document.getElementById('blockReward').textContent = 'N/A';
+                }
+
+                // Interval
+                try {
+                  const intervalResp = await fetch('https://blockchain.info/q/interval');
+                  const interval = await intervalResp.text();
+                  document.getElementById('interval').textContent = parseFloat(interval).toLocaleString() + ' sec';
+                } catch (e) {
+                  document.getElementById('interval').textContent = 'N/A';
+                }
+
+                // Probability
+                try {
+                  const probResp = await fetch('https://blockchain.info/q/probability');
+                  const prob = await probResp.text();
+                  document.getElementById('probability').textContent = parseFloat(prob).toExponential(2);
+                } catch (e) {
+                  document.getElementById('probability').textContent = 'N/A';
+                }
+
+                // Hashes to Win
+                try {
+                  const hashesResp = await fetch('https://blockchain.info/q/hashestowin');
+                  const hashes = await hashesResp.text();
+                  document.getElementById('hashesToWin').textContent = parseFloat(hashes).toLocaleString('en-US', {maximumFractionDigits:0});
+                } catch (e) {
+                  document.getElementById('hashesToWin').textContent = 'N/A';
+                }
+
+
+                
+                // Update timestamp
+                const now = new Date();
+                document.getElementById('lastUpdated').textContent = 
+                    `Last updated: ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`;
+                
+                // Reset any error states
+                document.querySelectorAll('.stat-value').forEach(el => {
+                    el.classList.remove('error');
+                    el.classList.remove('loading');
+                });
+                
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                
+                // Show error state for failed requests
+                const errorElements = ['price', 'hashrate', 'difficulty', 'blockHeight', 'securityValue', 'marketCap', 'hashRateEfficiency', 'avgBlockTime'];
+                errorElements.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element.textContent === 'Loading...') {
+                        element.textContent = 'Error';
+                        element.classList.add('error');
+                    }
+                });
+                
+                document.getElementById('lastUpdated').textContent = 'Error loading data. Please try refreshing.';
+            }
+        }
+
+        // Data source URLs mapping
+        const dataSources = {
+            'coingecko': 'https://www.coingecko.com/en/coins/bitcoin',
+            'blockchain-difficulty': 'https://blockchain.info/charts/difficulty',
+            'blockchain-hashrate': 'https://www.blockchain.com/explorer/charts/hash-rate',
+            'blockstream': 'https://blockstream.info/'
+        };
+        
+        // Open data source in new tab
+        function openDataSource(source) {
+            if (dataSources[source]) {
+                window.open(dataSources[source], '_blank');
+            }
+        }
+
+        // Update counter functionality
+        let startTime = Date.now();
+        
+        function updateCounter() {
+            const elapsed = Date.now() - startTime;
+            const seconds = Math.floor(elapsed / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            
+            let counterText = '';
+            if (minutes >= 5) {
+                counterText = `Updated 5 minutes ago`;
+            } else if (days > 0) {
+                counterText = `Updated ${days} day${days > 1 ? 's' : ''} ago`;
+            } else if (hours > 0) {
+                counterText = `Updated ${hours} hour${hours > 1 ? 's' : ''} ago`;
+            } else if (minutes > 0) {
+                counterText = `Updated ${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+            } else {
+                counterText = `Updated ${seconds} second${seconds > 1 ? 's' : ''} ago`;
+            }
+            
+            document.getElementById('update-counter').textContent = counterText;
+            // Real-time browser tab update
+            const priceElem = document.getElementById('price');
+            let priceText = '';
+            if (priceElem && priceElem.textContent && !isNaN(priceElem.textContent.replace(/[^\d.]/g, ''))) {
+                priceText = '₿ ' + priceElem.textContent;
+            }
+            document.title = `${priceText ? priceText + ' - ' : ''}${counterText} | Bitcoin Network Stats`;
+
+        }
+
+        // Initial data load
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchData();
+            updateCounter();
+            
+            // Set up auto-refresh every 5 minutes
+            setInterval(fetchData, 5 * 60 * 1000);
+            // Update counter every second
+            setInterval(updateCounter, 1000);
+        });
+    </script>
+        <div class="data-sources" style="font-size:13px; color:#999; margin-top:8px; text-align:center;">
+            <strong>Data sources:</strong>
+            <a href="https://coingecko.com/" target="_blank">CoinGecko</a> |
+            <a href="https://mempool.space/" target="_blank">Mempool.space</a> |
+            <a href="https://blockchain.info/" target="_blank">Blockchain.info</a>
+        </div>
+</body>
+</html>
