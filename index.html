@@ -530,54 +530,83 @@
                         window.currentHashrate = 750e18;
                     }
                     
-                    // Get recent blocks to calculate actual interval
+                    // Get actual interval - try multiple sources
+                    let intervalSet = false;
+                    
+                    // Method 1: Try Blockstream API for recent blocks (most reliable)
                     try {
-                        const blocksResponse = await fetch('https://mempool.space/api/v1/blocks/0');
-                        const blocks = await blocksResponse.json();
-                        if (blocks && blocks.length >= 2) {
+                        const blockstreamResponse = await fetch('https://blockstream.info/api/blocks');
+                        const blockstreamBlocks = await blockstreamResponse.json();
+                        if (blockstreamBlocks && blockstreamBlocks.length >= 2) {
                             // Calculate average interval from last 10 blocks
                             let totalInterval = 0;
-                            let count = Math.min(blocks.length - 1, 10);
+                            let count = Math.min(blockstreamBlocks.length - 1, 10);
                             for (let i = 0; i < count; i++) {
-                                totalInterval += blocks[i].timestamp - blocks[i + 1].timestamp;
+                                totalInterval += blockstreamBlocks[i].timestamp - blockstreamBlocks[i + 1].timestamp;
                             }
                             const avgInterval = totalInterval / count;
                             const minutes = Math.floor(avgInterval / 60);
                             const seconds = Math.floor(avgInterval % 60);
                             document.getElementById('interval').textContent = `${minutes}m ${seconds}s`;
                             window.currentInterval = avgInterval;
-                        } else {
-                            // Fallback - try to get from blockchain.info through CORS proxy
-                            try {
-                                const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://blockchain.info/q/interval');
-                                const intervalResponse = await fetch(proxyUrl);
-                                const intervalSeconds = parseFloat(await intervalResponse.text());
+                            intervalSet = true;
+                            console.log('Interval from Blockstream recent blocks:', avgInterval);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching Blockstream blocks:', error);
+                    }
+                    
+                    // Method 2: If Blockstream failed, try blockchain.info direct interval API
+                    if (!intervalSet) {
+                        try {
+                            // Use a public CORS proxy to access blockchain.info
+                            const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://blockchain.info/q/interval');
+                            const intervalResponse = await fetch(proxyUrl);
+                            const intervalText = await intervalResponse.text();
+                            const intervalSeconds = parseFloat(intervalText);
+                            
+                            if (!isNaN(intervalSeconds) && intervalSeconds > 0) {
                                 const minutes = Math.floor(intervalSeconds / 60);
                                 const seconds = Math.floor(intervalSeconds % 60);
                                 document.getElementById('interval').textContent = `${minutes}m ${seconds}s`;
                                 window.currentInterval = intervalSeconds;
-                            } catch (proxyError) {
-                                // Final fallback
-                                document.getElementById('interval').textContent = '8m 41s';
-                                window.currentInterval = 521;
+                                intervalSet = true;
+                                console.log('Interval from blockchain.info:', intervalSeconds);
                             }
+                        } catch (error) {
+                            console.error('Error fetching blockchain.info interval:', error);
                         }
-                    } catch (error) {
-                        console.error('Error fetching blocks for interval:', error);
-                        // Try blockchain.info through CORS proxy
+                    }
+                    
+                    // Method 3: Try Mempool.space as backup
+                    if (!intervalSet) {
                         try {
-                            const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://blockchain.info/q/interval');
-                            const intervalResponse = await fetch(proxyUrl);
-                            const intervalSeconds = parseFloat(await intervalResponse.text());
-                            const minutes = Math.floor(intervalSeconds / 60);
-                            const seconds = Math.floor(intervalSeconds % 60);
-                            document.getElementById('interval').textContent = `${minutes}m ${seconds}s`;
-                            window.currentInterval = intervalSeconds;
-                        } catch (proxyError) {
-                            console.error('Error fetching interval from proxy:', proxyError);
-                            document.getElementById('interval').textContent = '8m 41s';
-                            window.currentInterval = 521;
+                            const mempoolResponse = await fetch('https://mempool.space/api/v1/blocks');
+                            const mempoolBlocks = await mempoolResponse.json();
+                            if (mempoolBlocks && mempoolBlocks.length >= 2) {
+                                let totalInterval = 0;
+                                let count = Math.min(mempoolBlocks.length - 1, 10);
+                                for (let i = 0; i < count; i++) {
+                                    totalInterval += mempoolBlocks[i].timestamp - mempoolBlocks[i + 1].timestamp;
+                                }
+                                const avgInterval = totalInterval / count;
+                                const minutes = Math.floor(avgInterval / 60);
+                                const seconds = Math.floor(avgInterval % 60);
+                                document.getElementById('interval').textContent = `${minutes}m ${seconds}s`;
+                                window.currentInterval = avgInterval;
+                                intervalSet = true;
+                                console.log('Interval from Mempool blocks:', avgInterval);
+                            }
+                        } catch (error) {
+                            console.error('Error fetching Mempool blocks:', error);
                         }
+                    }
+                    
+                    // Final fallback if all methods fail
+                    if (!intervalSet) {
+                        document.getElementById('interval').textContent = '8m 43s';
+                        window.currentInterval = 523;
+                        console.log('Using fallback interval value');
                     }
                     
                     // Calculate probability and hashes to win based on actual difficulty
