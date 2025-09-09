@@ -442,9 +442,7 @@
             const days = Math.floor(hours / 24);
             
             let counterText = '';
-            if (minutes >= 5) {
-                counterText = `Updated 5 minutes ago`;
-            } else if (days > 0) {
+            if (days > 0) {
                 counterText = `Updated ${days} day${days > 1 ? 's' : ''} ago`;
             } else if (hours > 0) {
                 counterText = `Updated ${hours} hour${hours > 1 ? 's' : ''} ago`;
@@ -459,7 +457,7 @@
             // Real-time browser tab update
             const priceElem = document.getElementById('price');
             let priceText = '';
-            if (priceElem && priceElem.textContent && !isNaN(priceElem.textContent.replace(/[^\d.]/g, ''))) {
+            if (priceElem && priceElem.textContent && !priceElem.textContent.includes('Loading')) {
                 priceText = '₿ ' + priceElem.textContent;
             }
             document.title = `${priceText ? priceText + ' - ' : ''}${counterText} | Bitcoin Network Stats`;
@@ -490,7 +488,7 @@
                     window.currentBtcPrice = btcPrice;
                 } catch (error) {
                     console.error('Error fetching price:', error);
-                    document.getElementById('price').textContent = '$105,000';
+                    document.getElementById('price').textContent = '$105,000.00';
                     window.currentBtcPrice = 105000;
                 }
                 
@@ -504,32 +502,83 @@
                     // Get mining difficulty
                     const difficultyResponse = await fetch('https://mempool.space/api/v1/mining/difficulty-adjustment');
                     const difficultyData = await difficultyResponse.json();
-                    document.getElementById('difficulty').textContent = (difficultyData.difficulty / 1e12).toFixed(2) + 'T';
+                    const difficultyInT = difficultyData.difficulty / 1e12;
+                    document.getElementById('difficulty').textContent = difficultyInT.toFixed(2) + 'T';
+                    window.currentDifficulty = difficultyData.difficulty;
                     
-                    // Get hashrate (from mempool.space mining stats)
+                    // Get hashrate from mining stats
                     const hashrateResponse = await fetch('https://mempool.space/api/v1/mining/hashrate/3d');
                     const hashrateData = await hashrateResponse.json();
                     if (hashrateData.hashrates && hashrateData.hashrates.length > 0) {
                         const latestHashrate = hashrateData.hashrates[hashrateData.hashrates.length - 1].avgHashrate;
                         const hashrateEHs = latestHashrate / 1e18; // Convert H/s to EH/s
                         document.getElementById('hashrate').textContent = `${hashrateEHs.toFixed(2)} EH/s`;
-                        window.currentHashrate = latestHashrate / 1e9; // Store in GH/s
+                        window.currentHashrate = latestHashrate;
+                    } else {
+                        // Fallback hashrate
+                        document.getElementById('hashrate').textContent = '750.00 EH/s';
+                        window.currentHashrate = 750e18;
                     }
+                    
+                    // Get recent blocks to calculate actual interval
+                    try {
+                        const blocksResponse = await fetch('https://mempool.space/api/v1/blocks/0');
+                        const blocks = await blocksResponse.json();
+                        if (blocks && blocks.length >= 2) {
+                            // Calculate average interval from last 10 blocks
+                            let totalInterval = 0;
+                            let count = Math.min(blocks.length - 1, 10);
+                            for (let i = 0; i < count; i++) {
+                                totalInterval += blocks[i].timestamp - blocks[i + 1].timestamp;
+                            }
+                            const avgInterval = totalInterval / count;
+                            const minutes = Math.floor(avgInterval / 60);
+                            const seconds = Math.floor(avgInterval % 60);
+                            document.getElementById('interval').textContent = `${minutes}m ${seconds}s`;
+                            window.currentInterval = avgInterval;
+                        } else {
+                            // Fallback to 10 minutes
+                            document.getElementById('interval').textContent = '10m 0s';
+                            window.currentInterval = 600;
+                        }
+                    } catch (error) {
+                        console.error('Error fetching blocks for interval:', error);
+                        document.getElementById('interval').textContent = '10m 0s';
+                        window.currentInterval = 600;
+                    }
+                    
+                    // Calculate probability and hashes to win based on actual difficulty
+                    if (window.currentDifficulty) {
+                        // Probability = 1 / (difficulty * 2^32)
+                        const probability = 1 / (window.currentDifficulty * Math.pow(2, 32));
+                        document.getElementById('probability').textContent = probability.toExponential(2);
+                        
+                        // Hashes to win = difficulty * 2^32
+                        const hashesToWin = window.currentDifficulty * Math.pow(2, 32);
+                        document.getElementById('hashesToWin').textContent = hashesToWin.toExponential(2);
+                    }
+                    
                 } catch (error) {
                     console.error('Error fetching blockchain stats:', error);
                     // Use fallback values
                     document.getElementById('blockHeight').textContent = '875,000';
                     document.getElementById('difficulty').textContent = '95.67T';
                     document.getElementById('hashrate').textContent = '750.00 EH/s';
-                    window.currentHashrate = 750e9;
+                    document.getElementById('interval').textContent = '10m 0s';
+                    document.getElementById('probability').textContent = '1.08e-23';
+                    document.getElementById('hashesToWin').textContent = '9.27e22';
+                    window.currentHashrate = 750e18;
+                    window.currentDifficulty = 95.67e12;
                 }
                 
-                // Set static values for other fields (since blockchain.info requires CORS proxy)
+                // Set block reward (current era is 3.125 BTC after the 2024 halving)
                 document.getElementById('blockReward').textContent = '3.125 BTC';
-                document.getElementById('interval').textContent = '10m 0s';
-                document.getElementById('probability').textContent = '1.08e-23';
-                document.getElementById('hashesToWin').textContent = '9.27e22';
                 window.currentBlockReward = 3.125;
+                
+                // Load energy cost if configured
+                if (config.energyCost) {
+                    document.getElementById('energyCost').textContent = `$${config.energyCost}/kWh`;
+                }
                 
                 // Calculate break-even electricity price if configured
                 if (config.minerEfficiency && window.currentBtcPrice) {
@@ -537,7 +586,7 @@
                 }
                 
                 // Update pool luck if configured
-                if (config.poolApiUrl) {
+                if (config.poolName) {
                     updatePoolLuck();
                 }
                 
@@ -551,7 +600,7 @@
                 document.getElementById('lastUpdated').textContent = 
                     `Last updated: ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`;
                 
-                // Reset any error states
+                // Remove loading states
                 document.querySelectorAll('.stat-value').forEach(el => {
                     el.classList.remove('error');
                     el.classList.remove('loading');
@@ -568,9 +617,9 @@
             
             // Calculate daily BTC earnings per TH/s
             const blocksPerDay = 144; // average
-            // currentHashrate is in GH/s, convert to TH/s (1 TH = 1000 GH)
-            const networkHashrate = window.currentHashrate ? window.currentHashrate / 1000 : 750e6; // Convert GH/s to TH/s or use default 750 EH/s
-            const btcPerTHPerDay = (blockReward * blocksPerDay) / networkHashrate;
+            // currentHashrate is in H/s, convert to TH/s (1 TH = 1e12 H)
+            const networkHashrateTH = window.currentHashrate ? window.currentHashrate / 1e12 : 750e6; // Convert H/s to TH/s or use default 750 EH/s
+            const btcPerTHPerDay = (blockReward * blocksPerDay) / networkHashrateTH;
             
             // Calculate revenue per TH/s per day in USD
             const revenuePerTHPerDay = btcPerTHPerDay * btcPrice;
@@ -663,8 +712,31 @@
             }
         }
 
+        // Configure energy cost
+        function configureEnergyCost() {
+            const cost = prompt('Enter your local energy cost ($/kWh):', config.energyCost || '0.10');
+            if (cost) {
+                config.energyCost = cost;
+                localStorage.setItem('energyCost', cost);
+                document.getElementById('energyCost').textContent = `$${cost}/kWh`;
+                // Recalculate breakeven if miner efficiency is set
+                if (config.minerEfficiency && window.currentBtcPrice) {
+                    calculateBreakevenPrice(window.currentBtcPrice, window.currentBlockReward);
+                }
+            }
+        }
+
         // Initial data load
         document.addEventListener('DOMContentLoaded', function() {
+            // Set up click handler for energy cost card
+            const energyCostCard = document.querySelector('[id="energyCost"]').closest('.stat-card');
+            if (energyCostCard) {
+                energyCostCard.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    configureEnergyCost();
+                });
+            }
+            
             fetchData();
             updateCounter();
             
