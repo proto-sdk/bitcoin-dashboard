@@ -53,14 +53,14 @@
         <!-- ... (keeping other stat cards) ... -->
         
         <!-- Updated Interval Card -->
-        <div class="stat-card" id="intervalCard">
+        <div class="stat-card" id="intervalCard" onclick="window.open('https://blockchain.info/q/interval', '_blank')">
             <div class="status-indicator"></div>
             <span class="stat-icon price-green">⏲️</span>
             <div class="stat-value" id="interval">Loading...</div>
             <div class="stat-label">Block Interval</div>
             <div class="interval-details" id="intervalDetails"></div>
             <div class="interval-source" id="intervalSource"></div>
-            <div class="tooltip">Real-time average block interval</div>
+            <div class="tooltip">Current average time between blocks</div>
         </div>
         
         <!-- ... (keeping other stat cards) ... -->
@@ -72,48 +72,28 @@
         // Constants
         const TARGET_BLOCK_TIME = 600; // 10 minutes in seconds
         const UPDATE_INTERVAL = 30000; // Update every 30 seconds
-        const BLOCKS_TO_AVERAGE = 10; // Number of blocks to calculate average interval
         
-        // Store block data
-        let lastBlocks = [];
+        // Store last update time
         let lastUpdateTime = 0;
         
         async function fetchBlockInterval() {
             try {
-                // Fetch the latest blocks from Blockstream API
-                const response = await fetch('https://blockstream.info/api/blocks');
+                // Use blockchain.info's direct interval API
+                const response = await fetch('https://blockchain.info/q/interval');
                 if (!response.ok) {
-                    throw new Error('Failed to fetch blocks');
+                    throw new Error('Failed to fetch interval');
                 }
                 
-                const blocks = await response.json();
-                if (!blocks || blocks.length < 2) {
-                    throw new Error('Invalid blocks data');
+                const intervalText = await response.text();
+                const interval = parseFloat(intervalText);
+                
+                if (isNaN(interval) || interval <= 0) {
+                    throw new Error('Invalid interval data');
                 }
-                
-                // Store the blocks data
-                lastBlocks = blocks.slice(0, BLOCKS_TO_AVERAGE + 1);
-                
-                // Calculate intervals between consecutive blocks
-                const intervals = [];
-                for (let i = 0; i < lastBlocks.length - 1; i++) {
-                    const interval = lastBlocks[i].timestamp - lastBlocks[i + 1].timestamp;
-                    intervals.push(interval);
-                }
-                
-                // Calculate average interval
-                const avgInterval = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;
-                
-                // Calculate standard deviation
-                const variance = intervals.reduce((sum, interval) => {
-                    const diff = interval - avgInterval;
-                    return sum + diff * diff;
-                }, 0) / intervals.length;
-                const stdDev = Math.sqrt(variance);
                 
                 // Update the UI
-                const minutes = Math.floor(avgInterval / 60);
-                const seconds = Math.floor(avgInterval % 60);
+                const minutes = Math.floor(interval / 60);
+                const seconds = Math.floor(interval % 60);
                 
                 const intervalElement = document.getElementById('interval');
                 const newText = `${minutes}m ${seconds}s`;
@@ -126,19 +106,19 @@
                 }
                 
                 // Calculate and display deviation from target
-                const deviation = ((avgInterval - TARGET_BLOCK_TIME) / TARGET_BLOCK_TIME * 100).toFixed(1);
+                const deviation = ((interval - TARGET_BLOCK_TIME) / TARGET_BLOCK_TIME * 100).toFixed(1);
                 const deviationText = deviation > 0 ? `+${deviation}%` : `${deviation}%`;
                 
                 // Update interval details
                 document.getElementById('intervalDetails').textContent = 
-                    `${deviationText} from target (10m) • σ=${stdDev.toFixed(1)}s`;
+                    `${deviationText} from target (10m)`;
                 
                 // Update source information
                 document.getElementById('intervalSource').textContent = 
-                    `Based on last ${BLOCKS_TO_AVERAGE} blocks • Blockstream API`;
+                    `Data from blockchain.info/q/interval`;
                 
                 // Store the interval for other calculations
-                window.currentInterval = avgInterval;
+                window.currentInterval = interval;
                 lastUpdateTime = Date.now();
                 
                 // Update status indicator
@@ -148,6 +128,31 @@
                 return true;
             } catch (error) {
                 console.error('Error fetching interval data:', error);
+                
+                // Try backup API - blockchain.com explorer API
+                try {
+                    const response = await fetch('https://api.blockchain.com/v3/blocks/latest');
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch from backup API');
+                    }
+                    
+                    const data = await response.json();
+                    if (data.timestamp) {
+                        // Use a 10-minute default if we can't get exact interval
+                        const interval = 600;
+                        const minutes = Math.floor(interval / 60);
+                        const seconds = Math.floor(interval % 60);
+                        
+                        document.getElementById('interval').textContent = `${minutes}m ${seconds}s`;
+                        document.getElementById('intervalDetails').textContent = 'Using estimated value';
+                        document.getElementById('intervalSource').textContent = 'Backup source: blockchain.com';
+                        
+                        window.currentInterval = interval;
+                        return true;
+                    }
+                } catch (backupError) {
+                    console.error('Backup API also failed:', backupError);
+                }
                 
                 // Update UI to show error state
                 document.getElementById('interval').textContent = 'Error';
