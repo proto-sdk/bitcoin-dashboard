@@ -54,12 +54,42 @@
             border-radius: 16px;
             padding: 28px;
             transition: all 0.3s ease;
+            position: relative;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .stat-card.configurable {
+            border-color: #FEB019;
         }
         
         .stat-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 24px rgba(255, 107, 53, 0.15);
             border-color: #FF8C42;
+        }
+        
+        .stat-card.configurable:hover {
+            border-color: #FFD700;
+            box-shadow: 0 12px 24px rgba(254, 176, 25, 0.15);
+        }
+        
+        .status-indicator {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 8px;
+            height: 8px;
+            background: #00E396;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
         
         .stat-icon {
@@ -81,12 +111,25 @@
             font-weight: 500;
         }
         
+        .stat-sublabel {
+            font-size: 12px;
+            color: #666666;
+            margin-top: 4px;
+        }
+        
         .bitcoin-orange { color: #f7931a; }
         .hash-blue { color: #0077FF; }
         .difficulty-purple { color: #9B51E0; }
         .blocks-red { color: #FF6B6B; }
         .price-green { color: #00E396; }
         .miners-teal { color: #00C2A8; }
+        .energy-yellow { color: #FEB019; }
+        .breakeven-pink { color: #FF69B4; }
+        .pool-cyan { color: #00FFFF; }
+        .tou-lime { color: #32CD32; }
+        .interval-magenta { color: #FF00FF; }
+        .probability-indigo { color: #4B0082; }
+        .hashes-coral { color: #FF7F50; }
         
         .footer {
             background: rgba(255, 255, 255, 0.1);
@@ -103,6 +146,51 @@
         .error {
             color: #FF6B6B !important;
         }
+        
+        .tooltip {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000000;
+            color: #ffffff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 1000;
+            max-width: 250px;
+            white-space: normal;
+            text-align: center;
+        }
+        
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 4px;
+            border-style: solid;
+            border-color: #000000 transparent transparent transparent;
+        }
+        
+        .stat-card:hover .tooltip {
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .stat-card {
+                padding: 24px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -113,40 +201,113 @@
         </div>
         
         <div class="stats-grid">
+            <!-- Energy Cost Card -->
+            <a href="https://github.com/proto-sdk/bitcoin-dashboard#-setting-up-local-energy-cost-tracking" target="_blank" class="stat-card configurable">
+                <div class="status-indicator"></div>
+                <span class="stat-icon energy-yellow">🔧</span>
+                <div class="stat-value" id="energyCost">Setup Required</div>
+                <div class="stat-label">Local Energy Cost (kWh)</div>
+                <div class="stat-sublabel">Click to configure</div>
+                <div class="tooltip">Configure your local energy cost</div>
+            </a>
+
+            <!-- Bitcoin Price -->
             <div class="stat-card">
+                <div class="status-indicator"></div>
                 <span class="stat-icon bitcoin-orange">₿</span>
                 <div class="stat-value" id="price">Loading...</div>
                 <div class="stat-label">Bitcoin Price (USD)</div>
+                <div class="tooltip">Current market price</div>
             </div>
             
+            <!-- Network Hash Rate -->
             <div class="stat-card">
+                <div class="status-indicator"></div>
                 <span class="stat-icon hash-blue">⚡</span>
                 <div class="stat-value" id="hashrate">Loading...</div>
                 <div class="stat-label">Network Hash Rate</div>
+                <div class="tooltip">Total computational power</div>
             </div>
             
+            <!-- Mining Difficulty -->
             <div class="stat-card">
+                <div class="status-indicator"></div>
                 <span class="stat-icon difficulty-purple">🎯</span>
                 <div class="stat-value" id="difficulty">Loading...</div>
                 <div class="stat-label">Mining Difficulty</div>
+                <div class="tooltip">Adjusts every 2,016 blocks</div>
             </div>
             
+            <!-- Block Height -->
             <div class="stat-card">
+                <div class="status-indicator"></div>
                 <span class="stat-icon blocks-red">🧱</span>
                 <div class="stat-value" id="blockHeight">Loading...</div>
                 <div class="stat-label">Current Block Height</div>
+                <div class="tooltip">Latest block number</div>
             </div>
             
+            <!-- Block Reward -->
             <div class="stat-card">
+                <div class="status-indicator"></div>
                 <span class="stat-icon miners-teal">🏆</span>
                 <div class="stat-value" id="blockReward">Loading...</div>
                 <div class="stat-label">Block Reward</div>
+                <div class="tooltip">Current block reward in BTC</div>
             </div>
             
+            <!-- Break-even Electricity Price -->
             <div class="stat-card">
-                <span class="stat-icon price-green">⏲️</span>
+                <div class="status-indicator"></div>
+                <span class="stat-icon breakeven-pink">💰</span>
+                <div class="stat-value" id="breakeven">Loading...</div>
+                <div class="stat-label">Break-even Electricity Price</div>
+                <div class="tooltip">Maximum profitable electricity cost</div>
+            </div>
+            
+            <!-- Pool Luck/Performance -->
+            <div class="stat-card">
+                <div class="status-indicator"></div>
+                <span class="stat-icon pool-cyan">🎲</span>
+                <div class="stat-value" id="poolLuck">Loading...</div>
+                <div class="stat-label">Pool Luck/Performance</div>
+                <div class="tooltip">Mining pool performance metrics</div>
+            </div>
+            
+            <!-- Time-of-Use Rate -->
+            <div class="stat-card configurable">
+                <div class="status-indicator"></div>
+                <span class="stat-icon tou-lime">⏰</span>
+                <div class="stat-value" id="touRate">Setup Required</div>
+                <div class="stat-label">Time-of-Use Rate</div>
+                <div class="tooltip">Current electricity rate based on time</div>
+            </div>
+            
+            <!-- Block Interval -->
+            <div class="stat-card">
+                <div class="status-indicator"></div>
+                <span class="stat-icon interval-magenta">⏱️</span>
                 <div class="stat-value" id="interval">Loading...</div>
                 <div class="stat-label">Block Interval</div>
+                <div class="tooltip">Average time between blocks</div>
+            </div>
+            
+            <!-- Mining Probability -->
+            <div class="stat-card">
+                <div class="status-indicator"></div>
+                <span class="stat-icon probability-indigo">📊</span>
+                <div class="stat-value" id="probability">Loading...</div>
+                <div class="stat-label">Mining Probability</div>
+                <div class="tooltip">Chance of finding next block</div>
+            </div>
+            
+            <!-- Hashes to Win -->
+            <div class="stat-card">
+                <div class="status-indicator"></div>
+                <span class="stat-icon hashes-coral">🔢</span>
+                <div class="stat-value" id="hashesToWin">Loading...</div>
+                <div class="stat-label">Hashes to Win</div>
+                <div class="tooltip">Expected hashes to find a block</div>
             </div>
         </div>
         
@@ -225,16 +386,88 @@
                 document.getElementById('blockReward').classList.add('error');
             }
             
-            // Interval
+            // Break-even electricity price (simplified calculation)
             try {
-                const intervalResponse = await fetch('https://blockchain.info/q/interval');
-                const interval = await intervalResponse.text();
-                document.getElementById('interval').textContent = interval + 's';
-                document.getElementById('interval').classList.remove('error', 'loading');
+                const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+                const priceData = await priceResponse.json();
+                const btcPrice = priceData.bitcoin.usd;
+                // Simplified calculation assuming S19 Pro (110 TH/s, 3250W)
+                const breakevenPrice = (btcPrice * 6.25 / 144 * 110 / 800000) / (3.25 * 24);
+                document.getElementById('breakeven').textContent = '$' + breakevenPrice.toFixed(3) + '/kWh';
+                document.getElementById('breakeven').classList.remove('error', 'loading');
+            } catch (e) {
+                console.error('Breakeven error:', e);
+                document.getElementById('breakeven').textContent = 'Error';
+                document.getElementById('breakeven').classList.add('error');
+            }
+            
+            // Pool Luck (using mempool.space pools data)
+            try {
+                const poolsResponse = await fetch('https://mempool.space/api/v1/mining/pools/24h');
+                const poolsData = await poolsResponse.json();
+                if (poolsData && poolsData.pools && poolsData.pools.length > 0) {
+                    // Get the top pool's luck
+                    const topPool = poolsData.pools[0];
+                    const luck = ((topPool.blockCount / poolsData.blockCount) * 100).toFixed(1);
+                    document.getElementById('poolLuck').textContent = topPool.name + ': ' + luck + '%';
+                    document.getElementById('poolLuck').classList.remove('error', 'loading');
+                } else {
+                    document.getElementById('poolLuck').textContent = 'N/A';
+                }
+            } catch (e) {
+                console.error('Pool luck error:', e);
+                document.getElementById('poolLuck').textContent = 'N/A';
+                document.getElementById('poolLuck').classList.add('error');
+            }
+            
+            // Block Interval - Using mempool.space recent blocks
+            try {
+                const blocksResponse = await fetch('https://mempool.space/api/v1/blocks');
+                const blocks = await blocksResponse.json();
+                if (blocks && blocks.length > 1) {
+                    // Calculate average interval from last 10 blocks
+                    let totalInterval = 0;
+                    let count = Math.min(10, blocks.length - 1);
+                    for (let i = 0; i < count; i++) {
+                        totalInterval += blocks[i].timestamp - blocks[i + 1].timestamp;
+                    }
+                    const avgInterval = totalInterval / count;
+                    const minutes = Math.floor(avgInterval / 60);
+                    const seconds = Math.floor(avgInterval % 60);
+                    document.getElementById('interval').textContent = `${minutes}m ${seconds}s`;
+                    document.getElementById('interval').classList.remove('error', 'loading');
+                }
             } catch (e) {
                 console.error('Interval error:', e);
-                document.getElementById('interval').textContent = 'Error';
+                document.getElementById('interval').textContent = '~10 min';
                 document.getElementById('interval').classList.add('error');
+            }
+            
+            // Mining Probability (simplified)
+            try {
+                // Assuming a small miner with 100 TH/s
+                const minerHashrate = 100; // TH/s
+                const networkHashrate = 800000; // TH/s (approximate)
+                const probability = (minerHashrate / networkHashrate * 100).toExponential(2);
+                document.getElementById('probability').textContent = probability + '%';
+                document.getElementById('probability').classList.remove('error', 'loading');
+            } catch (e) {
+                console.error('Probability error:', e);
+                document.getElementById('probability').textContent = 'Error';
+                document.getElementById('probability').classList.add('error');
+            }
+            
+            // Hashes to Win
+            try {
+                const diffResponse = await fetch('https://blockchain.info/q/getdifficulty');
+                const difficulty = await diffResponse.text();
+                const hashesToWin = parseFloat(difficulty) * Math.pow(2, 32);
+                document.getElementById('hashesToWin').textContent = hashesToWin.toExponential(2);
+                document.getElementById('hashesToWin').classList.remove('error', 'loading');
+            } catch (e) {
+                console.error('Hashes to win error:', e);
+                document.getElementById('hashesToWin').textContent = 'Error';
+                document.getElementById('hashesToWin').classList.add('error');
             }
             
             // Update timestamp
