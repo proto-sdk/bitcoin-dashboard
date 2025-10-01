@@ -1,282 +1,84 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitcoin Network Statistics</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-        
-        body {
-            background: #000000;
-            min-height: 100vh;
-            padding: 40px 20px;
-            color: white;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        .header h1 {
-            color: white;
-            font-size: 48px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .header p {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 18px;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px;
-            margin-bottom: 60px;
-        }
-        
-        .stat-card {
-            background: #1a1a1a;
-            border: 2px solid #FF6B35;
-            border-radius: 16px;
-            padding: 28px;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: block;
-            cursor: pointer;
-            color: white;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-            border-color: #FF8C42;
-        }
-        
-        .stat-icon {
-            font-size: 32px;
-            margin-bottom: 16px;
-            display: inline-block;
-        }
-        
-        .stat-value {
-            font-size: 32px;
-            font-weight: 600;
-            letter-spacing: -1px;
-            margin-bottom: 8px;
-            color: #ffffff;
-            line-height: 1.2;
-        }
-        
-        .stat-label {
-            font-size: 14px;
-            color: #999999;
-            font-weight: 500;
-        }
-        
-        .bitcoin-orange { color: #f7931a; }
-        .hash-blue { color: #0077FF; }
-        .difficulty-purple { color: #9B51E0; }
-        .blocks-red { color: #FF6B6B; }
-        .price-green { color: #00E396; }
-        
-        .footer {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 24px;
-            text-align: center;
-            color: white;
-        }
-        
-        .loading {
-            opacity: 0.6;
-        }
-        
-        .error {
-            color: #FF6B6B !important;
-        }
-    </style>
+    <title>Bitcoin Dashboard</title>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>⚡ Bitcoin Network Statistics</h1>
-            <p>Real-time blockchain metrics and mining profitability data</p>
+<body style="background: black; color: white; font-family: Arial, sans-serif; padding: 20px;">
+    <h1>Bitcoin Network Statistics</h1>
+    <p>Real-time blockchain metrics</p>
+    
+    <div style="margin-top: 30px;">
+        <div style="background: #1a1a1a; border: 2px solid #FF6B35; border-radius: 10px; padding: 20px; margin: 10px 0;">
+            <h2>Bitcoin Price</h2>
+            <p id="price" style="font-size: 24px;">Loading...</p>
         </div>
         
-        <div class="stats-grid">
-            <!-- Bitcoin Price -->
-            <div class="stat-card">
-                <span class="stat-icon bitcoin-orange">₿</span>
-                <div class="stat-value" id="price">Loading...</div>
-                <div class="stat-label">Bitcoin Price (USD)</div>
-            </div>
-            
-            <!-- Network Hash Rate -->
-            <div class="stat-card">
-                <span class="stat-icon hash-blue">⚡</span>
-                <div class="stat-value" id="hashrate">Loading...</div>
-                <div class="stat-label">Network Hash Rate</div>
-            </div>
-            
-            <!-- Mining Difficulty -->
-            <div class="stat-card">
-                <span class="stat-icon difficulty-purple">🎯</span>
-                <div class="stat-value" id="difficulty">Loading...</div>
-                <div class="stat-label">Mining Difficulty</div>
-            </div>
-            
-            <!-- Block Height -->
-            <div class="stat-card">
-                <span class="stat-icon blocks-red">🧱</span>
-                <div class="stat-value" id="blockHeight">Loading...</div>
-                <div class="stat-label">Current Block Height</div>
-            </div>
-            
-            <!-- Block Reward -->
-            <div class="stat-card">
-                <span class="stat-icon price-green">🏆</span>
-                <div class="stat-value" id="blockReward">Loading...</div>
-                <div class="stat-label">Block Reward</div>
-            </div>
-            
-            <!-- Interval -->
-            <div class="stat-card">
-                <span class="stat-icon bitcoin-orange">⏲️</span>
-                <div class="stat-value" id="interval">Loading...</div>
-                <div class="stat-label">Block Interval</div>
-            </div>
+        <div style="background: #1a1a1a; border: 2px solid #FF6B35; border-radius: 10px; padding: 20px; margin: 10px 0;">
+            <h2>Network Hash Rate</h2>
+            <p id="hashrate" style="font-size: 24px;">Loading...</p>
         </div>
         
-        <div class="footer">
-            <p id="lastUpdated">Loading...</p>
-            <p style="margin-top: 10px; font-size: 12px; opacity: 0.7;">
-                Data sources: CoinGecko | Mempool.space | Blockchain.info
-            </p>
+        <div style="background: #1a1a1a; border: 2px solid #FF6B35; border-radius: 10px; padding: 20px; margin: 10px 0;">
+            <h2>Block Height</h2>
+            <p id="blockHeight" style="font-size: 24px;">Loading...</p>
         </div>
     </div>
-
+    
+    <p id="lastUpdated" style="margin-top: 30px; opacity: 0.7;">Loading...</p>
+    
     <script>
-        async function fetchData() {
-            try {
-                // Reset all values to loading state
-                document.querySelectorAll('.stat-value').forEach(el => {
-                    el.textContent = 'Loading...';
-                    el.classList.add('loading');
-                });
-                
-                // Fetch Bitcoin price from CoinGecko
-                try {
-                    const cgResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-                    const cgData = await cgResponse.json();
-                    const btcPrice = cgData.bitcoin.usd;
-                    document.getElementById('price').textContent = `$${btcPrice.toLocaleString()}`;
-                } catch (e) {
-                    document.getElementById('price').textContent = 'Error';
-                    document.getElementById('price').classList.add('error');
-                }
-                
-                // Fetch difficulty from Blockchain.info
-                try {
-                    const difficultyResponse = await fetch('https://blockchain.info/q/getdifficulty');
-                    const difficulty = await difficultyResponse.text();
-                    document.getElementById('difficulty').textContent = parseFloat(difficulty).toExponential(2);
-                } catch (e) {
-                    document.getElementById('difficulty').textContent = 'Error';
-                    document.getElementById('difficulty').classList.add('error');
-                }
-                
-                // Fetch hashrate from mempool.space
-                try {
-                    const mempoolHashrateResponse = await fetch('https://mempool.space/api/v1/mining/hashrate/3d');
-                    const mempoolData = await mempoolHashrateResponse.json();
-                    
-                    if (mempoolData && mempoolData.currentHashrate) {
-                        const hashrateInEH = mempoolData.currentHashrate / 1e18;
-                        document.getElementById('hashrate').textContent = `${hashrateInEH.toFixed(2)} EH/s`;
-                    } else {
-                        throw new Error('Invalid hashrate data');
-                    }
-                } catch (e) {
-                    document.getElementById('hashrate').textContent = 'N/A';
-                    document.getElementById('hashrate').classList.add('error');
-                }
-                
-                // Fetch latest block height from Blockstream
-                try {
-                    const blockResponse = await fetch('https://blockstream.info/api/blocks/tip/height');
-                    const blockHeight = await blockResponse.text();
-                    document.getElementById('blockHeight').textContent = parseInt(blockHeight).toLocaleString();
-                } catch (e) {
-                    document.getElementById('blockHeight').textContent = 'Error';
-                    document.getElementById('blockHeight').classList.add('error');
-                }
-                
-                // Fetch block reward
-                try {
-                    const blockRewardResponse = await fetch('https://blockchain.info/q/bcperblock');
-                    const blockReward = await blockRewardResponse.text();
-                    document.getElementById('blockReward').textContent = `${blockReward} BTC`;
-                } catch (e) {
-                    document.getElementById('blockReward').textContent = 'Error';
-                    document.getElementById('blockReward').classList.add('error');
-                }
-                
-                // Fetch interval
-                try {
-                    const intervalResponse = await fetch('https://blockchain.info/q/interval');
-                    const interval = await intervalResponse.text();
-                    document.getElementById('interval').textContent = `${interval}s`;
-                } catch (e) {
-                    document.getElementById('interval').textContent = 'Error';
-                    document.getElementById('interval').classList.add('error');
-                }
-                
-                // Update timestamp
-                const now = new Date();
-                document.getElementById('lastUpdated').textContent = 
-                    `Last updated: ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}`;
-                
-                // Reset any error states
-                document.querySelectorAll('.stat-value').forEach(el => {
-                    el.classList.remove('loading');
-                });
-                
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                document.getElementById('lastUpdated').textContent = 'Error loading data. Please try refreshing.';
-            }
-        }
-
-        // Initial data load
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Page loaded, fetching data...');
-            fetchData();
-            // Set up auto-refresh every 5 minutes
-            setInterval(fetchData, 5 * 60 * 1000);
-        });
+        console.log('Script starting...');
         
-        // Also fetch immediately in case DOMContentLoaded already fired
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            console.log('Document ready, fetching data immediately...');
-            fetchData();
+        async function fetchData() {
+            console.log('Fetching data...');
+            
+            // Bitcoin price
+            try {
+                const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+                const priceData = await priceResponse.json();
+                document.getElementById('price').textContent = '$' + priceData.bitcoin.usd.toLocaleString();
+                console.log('Price updated:', priceData.bitcoin.usd);
+            } catch (e) {
+                console.error('Price error:', e);
+                document.getElementById('price').textContent = 'Error loading price';
+            }
+            
+            // Hashrate
+            try {
+                const hashResponse = await fetch('https://mempool.space/api/v1/mining/hashrate/3d');
+                const hashData = await hashResponse.json();
+                const hashrateInEH = hashData.currentHashrate / 1e18;
+                document.getElementById('hashrate').textContent = hashrateInEH.toFixed(2) + ' EH/s';
+                console.log('Hashrate updated:', hashrateInEH);
+            } catch (e) {
+                console.error('Hashrate error:', e);
+                document.getElementById('hashrate').textContent = 'Error loading hashrate';
+            }
+            
+            // Block height
+            try {
+                const blockResponse = await fetch('https://blockstream.info/api/blocks/tip/height');
+                const blockHeight = await blockResponse.text();
+                document.getElementById('blockHeight').textContent = parseInt(blockHeight).toLocaleString();
+                console.log('Block height updated:', blockHeight);
+            } catch (e) {
+                console.error('Block height error:', e);
+                document.getElementById('blockHeight').textContent = 'Error loading block height';
+            }
+            
+            // Update timestamp
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent = 'Last updated: ' + now.toLocaleString();
         }
+        
+        // Run immediately
+        fetchData();
+        
+        // Run every 5 minutes
+        setInterval(fetchData, 5 * 60 * 1000);
+        
+        console.log('Script loaded successfully');
     </script>
 </body>
 </html>
