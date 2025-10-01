@@ -454,17 +454,30 @@
                 const btcPrice = cgData.bitcoin.usd;
                 document.getElementById('price').textContent = `$${btcPrice.toLocaleString()}`;
                 
-                // Fetch network stats from Blockchain.info
-                const [difficultyResponse, hashrateResponse] = await Promise.all([
-                    fetch('https://blockchain.info/q/getdifficulty'),
-                    fetch('https://blockchain.info/q/hashrate')
-                ]);
-                
+                // Fetch difficulty from Blockchain.info
+                const difficultyResponse = await fetch('https://blockchain.info/q/getdifficulty');
                 const difficulty = await difficultyResponse.text();
-                const hashrate = await hashrateResponse.text();
-                
                 document.getElementById('difficulty').textContent = parseFloat(difficulty).toExponential(2);
-                document.getElementById('hashrate').textContent = `${(parseFloat(hashrate) / 1e6).toFixed(2)} EH/s`;
+                
+                // Fetch hashrate from mempool.space (more reliable)
+                try {
+                    const mempoolHashrateResponse = await fetch('https://mempool.space/api/v1/mining/hashrate/3d');
+                    const mempoolData = await mempoolHashrateResponse.json();
+                    
+                    // Use currentHashrate from mempool.space
+                    if (mempoolData && mempoolData.currentHashrate) {
+                        const hashrateInEH = mempoolData.currentHashrate / 1e18; // Convert from H/s to EH/s
+                        document.getElementById('hashrate').textContent = `${hashrateInEH.toFixed(2)} EH/s`;
+                    } else {
+                        throw new Error('Invalid hashrate data');
+                    }
+                } catch (hashrateError) {
+                    console.error('Error fetching hashrate:', hashrateError);
+                    // Fallback: show error or estimate
+                    document.getElementById('hashrate').textContent = 'N/A';
+                    document.getElementById('hashrate').classList.add('error');
+                }
+                
                 
                 // Fetch latest block height from Blockstream
                 const blockResponse = await fetch('https://blockstream.info/api/blocks/tip/height');
