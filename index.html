@@ -196,6 +196,7 @@
             animation: spin 1s linear infinite;
         }
     </style>
+    <script src="config.js"></script>
 </head>
 <body>
     <div class="container">
@@ -253,6 +254,7 @@
         const REFRESH_INTERVAL = 15 * 60 * 1000;
         window.onload = function() {
             startRefreshTimer();
+            fetchPRs();
         };
         document.addEventListener('visibilitychange', function() {
             if (document.visibilityState === 'visible') {
@@ -425,8 +427,56 @@ displayPRs = function(prs) { origDisplayPRs(prs); startUpdatedBadgesInterval(); 
             return brightness > 128 ? '#000000' : '#ffffff';
         }
         async function fetchPRs() {
+            const token = window.config && window.config.githubToken;
             const prList = document.getElementById('pr-list');
-            prList.innerHTML = '<div class="error">GitHub token required for API access</div>';
+            const debugInfo = document.getElementById('debug-info');
+            debugInfo.style.display = 'none';
+            
+            if (!token) {
+                prList.innerHTML = '<div class="error">GitHub token required. Please configure config.js.</div>';
+                return;
+            }
+            
+            prList.innerHTML = '<div class="loading">Loading pull requests...</div>';
+            
+            try {
+                const response = await fetch('https://api.github.com/repos/btc-mining/miner-firmware/pulls?state=all&base=main&sort=updated&direction=desc&per_page=100', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    cache: 'no-store'
+                });
+                
+                const responseData = await response.text();
+                let jsonData;
+                try {
+                    jsonData = JSON.parse(responseData);
+                } catch (e) {
+                    showDebugInfo({
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: Object.fromEntries(response.headers.entries()),
+                        body: responseData
+                    });
+                    throw new Error('Failed to parse response data');
+                }
+                
+                if (!response.ok) {
+                    showDebugInfo({
+                        status: response.status,
+                        statusText: response.statusText,
+                        error: jsonData
+                    });
+                    throw new Error(`GitHub API Error: ${response.status} ${response.statusText}`);
+                }
+                
+                allPRs = jsonData;
+                updatePRStats();
+                filterAndDisplayPRs();
+            } catch (error) {
+                prList.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
         }
     </script>
 </body>
