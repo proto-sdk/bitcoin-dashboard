@@ -17,6 +17,8 @@ Thumbs.db
 .env
 *.local
 config.js
+backend/.env
+backend/node_modules
 
 # Logs
 *.log
